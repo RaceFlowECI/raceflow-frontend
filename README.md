@@ -191,8 +191,18 @@ docker run -d -p 80:80 raceflow-frontend
 ---
 
 ## Pruebas y calidad
+```bash
+npm run test
+npm run coverage
+npm run lint
+```
 
 ---
 
 ## CI/CD
 
+| Campo | Valor |
+|---|---|
+| Plataforma | Vercel |
+| URL del servicio | [raceflow-frontend-fhmt-seven.vercel.app](https://raceflow-frontend-fhmt-seven.vercel.app/) |
+| Ultima version | [![Vercel](https://vercelbadge.vercel.app/api/RaceFlowECI/raceflow-frontend)](https://raceflow-frontend-fhmt-seven.vercel.app/) |
