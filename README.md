@@ -177,6 +177,17 @@ docker run -d -p 80:80 raceflow-frontend
 
 ## Comunicacion con el backend
 
+| Tipo | Endpoint | Descripcion |
+|---|---|---|
+| REST POST | `/auth/register` | Registro (Auth Service) |
+| REST POST | `/auth/login` | Login y JWT (Auth Service) |
+| REST GET | `/auth/me` | Perfil del atleta (Auth Service) |
+| REST POST | `/rooms` | Crear sala (Room Service) |
+| REST POST | `/rooms/join` | Unirse por codigo (Room Service) |
+| REST GET | `/sessions/history` | Historial (Session Service) |
+| REST GET | `/metrics/kpis` | KPIs (Metrics Service) |
+| WebSocket | `/ws/rooms/{code}` | Stream GPS + ranking (Realtime Service) |
+
 ---
 
 ## Pruebas y calidad
