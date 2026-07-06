@@ -191,8 +191,18 @@ docker run -d -p 80:80 raceflow-frontend
 ---
 
 ## Pruebas y calidad
+```bash
+npm run test
+npm run coverage
+npm run lint
+```
 
 ---
 
 ## CI/CD
 
+| Campo | Valor |
+|---|---|
+| Plataforma | Vercel |
+| URL del servicio | _por definir_ |
+| Ultima version | ![CI](https://github.com/RaceFlowECI/raceflow-frontend/actions/workflows/ci.yml/badge.svg) |
