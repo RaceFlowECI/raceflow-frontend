@@ -164,6 +164,15 @@ docker run -d -p 80:80 raceflow-frontend
 
 ## Pantallas y flujos
 
+| Ruta | Pantalla | Descripcion |
+|---|---|---|
+| `/login` | Login | Autenticacion con email y password |
+| `/register` | Registro | Creacion de cuenta nueva |
+| `/dashboard` | Dashboard | Crear sala o ingresar codigo |
+| `/room/:code` | Sala activa | Mapa + ranking en tiempo real |
+| `/history` | Historial | Sesiones finalizadas del atleta |
+| `/metrics` | Metricas | KPIs de la plataforma |
+
 ---
 
 ## Comunicacion con el backend
