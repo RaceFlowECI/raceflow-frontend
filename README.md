@@ -65,6 +65,60 @@
 
 ## Estructura del proyecto
 
+```text
+raceflow-frontend/
+├── .github/workflows/
+├── .env.example
+├── .gitignore
+├── Dockerfile
+├── eslint.config.js
+├── index.html
+├── package.json
+├── tsconfig.json
+├── tsconfig.app.json
+├── tsconfig.node.json
+├── vercel.json
+├── vite.config.ts
+├── public/
+│   └── vite.svg
+└── src/
+    ├── App.css
+    ├── App.tsx
+    ├── index.css
+    ├── main.tsx
+    ├── vite-env.d.ts
+    ├── assets/
+    │   └── react.svg
+    ├── api/
+    │   ├── authApi.ts
+    │   ├── roomApi.ts
+    │   ├── sessionApi.ts
+    │   └── websocketClient.ts
+    ├── components/
+    │   ├── map/
+    │   │   ├── RaceMap.tsx
+    │   │   └── PlayerMarker.tsx
+    │   ├── ranking/
+    │   │   └── RankingTable.tsx
+    │   └── ui/
+    ├── pages/
+    │   ├── LoginPage.tsx
+    │   ├── RegisterPage.tsx
+    │   ├── DashboardPage.tsx
+    │   ├── RoomPage.tsx
+    │   ├── HistoryPage.tsx
+    │   └── MetricsPage.tsx
+    ├── hooks/
+    │   ├── useWebSocket.ts
+    │   ├── useGeolocation.ts
+    │   └── useAuth.ts
+    ├── router/
+    │   └── index.tsx
+    ├── store/
+    ├── types/
+    └── utils/
+```
+
 ---
 
 ## Configuracion local
