@@ -123,6 +123,43 @@ raceflow-frontend/
 
 ## Configuracion local
 
+### 1. Clonar el repositorio
+```bash
+git clone https://github.com/RaceFlowECI/raceflow-frontend.git
+cd raceflow-frontend
+```
+
+### 2. Instalar dependencias
+```bash
+npm install
+```
+
+### 3. Configurar variables de entorno
+```bash
+cp .env.example .env
+```
+```env
+VITE_API_GATEWAY_URL=http://localhost:8080
+VITE_WS_URL=ws://localhost:8080/ws
+```
+
+> [!WARNING]
+> Nunca subas credenciales reales. El archivo `.env` esta en `.gitignore`.
+
+### 4. Ejecutar en desarrollo
+```bash
+npm run dev
+```
+> [!TIP]
+> La aplicacion estara disponible en `http://localhost:5173`.
+
+### Build de produccion y Docker
+```bash
+npm run build
+docker build -t raceflow-frontend .
+docker run -d -p 80:80 raceflow-frontend
+```
+
 ---
 
 ## Pantallas y flujos
