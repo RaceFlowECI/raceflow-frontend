@@ -1,5 +1,7 @@
 import { useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { decodeToken, getToken } from '../api/auth'
+import { createRoom, joinRoom } from '../api/rooms'
 
 const ROOMS = [
   { id: '1', name: 'Sala de patinaje - Bogotá', sport: 'Patinaje', athletes: 4 },
@@ -14,7 +16,45 @@ const SPORT_ICON: Record<string, string> = {
 export default function Salas() {
   const nav   = useNavigate()
   const [code, setCode] = useState<string[]>(Array(6).fill(''))
+  const [error, setError] = useState<string | null>(null)
+  const [busy, setBusy] = useState(false)
   const refs  = useRef<(HTMLInputElement | null)[]>([])
+
+  const token = getToken()
+  const claims = token ? decodeToken(token) : null
+  const userName = (claims?.name as string) ?? (claims?.sub as string) ?? 'Atleta'
+  const userInitials = userName
+    .split(' ')
+    .map(p => p[0])
+    .slice(0, 2)
+    .join('')
+    .toUpperCase()
+
+  const handleCreate = async () => {
+    setError(null)
+    setBusy(true)
+    try {
+      const res = await createRoom(userName)
+      nav(`/sala/${res.roomCode}/mapa`)
+    } catch {
+      setError('No se pudo crear la sala')
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  const handleJoin = async () => {
+    setError(null)
+    setBusy(true)
+    try {
+      const res = await joinRoom(joinCode, userName)
+      nav(`/sala/${res.roomCode}/mapa`)
+    } catch {
+      setError('Código de sala inválido')
+    } finally {
+      setBusy(false)
+    }
+  }
 
   const handleKey = (i: number, e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Backspace' && !code[i] && i > 0) refs.current[i - 1]?.focus()
@@ -51,7 +91,7 @@ export default function Salas() {
           width: 38, height: 38, background: '#17C3B2', borderRadius: 50,
           display: 'flex', alignItems: 'center', justifyContent: 'center',
           color: '#fff', fontWeight: 700, fontSize: 14,
-        }}>JS</div>
+        }}>{userInitials}</div>
       </div>
 
       <div style={{ flex: 1, overflowY: 'auto', padding: '20px 20px 100px' }}>
@@ -92,8 +132,8 @@ export default function Salas() {
 
           <button
             className="btn-primary"
-            disabled={joinCode.length < 6}
-            onClick={() => nav('/sala/1/mapa')}
+            disabled={joinCode.length < 6 || busy}
+            onClick={handleJoin}
             style={{ opacity: joinCode.length < 6 ? 0.5 : 1 }}
           >
             Unirse a la sala
@@ -105,9 +145,13 @@ export default function Salas() {
             <div style={{ flex: 1, height: 1, background: '#E2E8F0' }} />
           </div>
 
-          <button className="btn-dark" onClick={() => nav('/sala/new/ranking')}>
+          <button className="btn-dark" onClick={handleCreate} disabled={busy}>
             + Crear sala de entrenamiento
           </button>
+
+          {error && (
+            <p style={{ fontSize: 12, color: '#EF4444', fontWeight: 600, marginTop: 10 }}>{error}</p>
+          )}
         </div>
 
         {/* Active rooms */}
