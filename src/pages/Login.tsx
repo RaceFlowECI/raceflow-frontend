@@ -1,15 +1,36 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { login, register, saveToken } from '../api/auth'
 
 export default function Login() {
   const nav = useNavigate()
   const [email, setEmail]     = useState('')
   const [password, setPass]   = useState('')
+  const [name, setName]       = useState('')
   const [mode, setMode]       = useState<'login' | 'register'>('login')
+  const [error, setError]     = useState<string | null>(null)
+  const [loading, setLoading] = useState(false)
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    nav('/salas')
+    setError(null)
+    setLoading(true)
+    try {
+      const auth = mode === 'login'
+        ? await login(email, password)
+        : await register(email, password, name)
+      saveToken(auth.token)
+      nav('/salas')
+    } catch (err) {
+      if (err instanceof Response) {
+        const body = await err.json().catch(() => null)
+        setError(body?.error ?? `Error ${err.status}`)
+      } else {
+        setError('No se pudo conectar con el servidor')
+      }
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
@@ -58,8 +79,18 @@ export default function Login() {
           {mode === 'register' && (
             <div>
               <label style={labelStyle}>NOMBRE COMPLETO</label>
-              <input style={inputStyle} type="text" placeholder="Juan Sebastián" />
+              <input
+                style={inputStyle}
+                type="text"
+                placeholder="Juan Sebastián"
+                value={name}
+                onChange={e => setName(e.target.value)}
+              />
             </div>
+          )}
+
+          {error && (
+            <p style={{ fontSize: 12, color: '#EF4444', fontWeight: 600 }}>{error}</p>
           )}
 
           <div>
@@ -91,8 +122,8 @@ export default function Login() {
             />
           </div>
 
-          <button type="submit" className="btn-primary" style={{ marginTop: 6 }}>
-            {mode === 'login' ? 'Iniciar sesión' : 'Crear cuenta'}
+          <button type="submit" className="btn-primary" style={{ marginTop: 6 }} disabled={loading}>
+            {loading ? 'Cargando...' : mode === 'login' ? 'Iniciar sesión' : 'Crear cuenta'}
           </button>
         </form>
 
