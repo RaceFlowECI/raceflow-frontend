@@ -1,15 +1,25 @@
 import { useEffect, useRef } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 import 'leaflet/dist/leaflet.css'
 import L from 'leaflet'
+import { getToken, decodeToken } from '../api/auth'
+import { useWebSocket } from '../hooks/useWebSocket'
+import { useGeolocation } from '../hooks/useGeolocation'
 
-// Mock athlete positions around Parque Simón Bolívar, Bogotá
-const ATHLETES = [
-  { id: 'JS', label: 'Tú (JS)', lat: 4.6589, lng: -74.0963, color: '#17C3B2', dist: '2.34 km' },
-  { id: 'AM', label: 'Ana M.',  lat: 4.6600, lng: -74.0948, color: '#F59E0B', dist: '2.18 km' },
-  { id: 'KR', label: 'Karla R.',lat: 4.6575, lng: -74.0975, color: '#EF4444', dist: '1.95 km' },
-  { id: 'LP', label: 'Luis P.', lat: 4.6612, lng: -74.0930, color: '#10B981', dist: '1.72 km' },
-]
+const DEFAULT_CENTER: [number, number] = [4.6589, -74.0963] // Parque Simón Bolívar, Bogotá
+const SELF_COLOR = '#17C3B2'
+const RANK_COLORS = ['#FFD700', '#C0C0C0', '#CD7F32'] // oro, plata, bronce
+const DEFAULT_COLOR = '#3B82F6'
+
+function initialsOf(name: string) {
+  return name.split(' ').map(p => p[0]).slice(0, 2).join('').toUpperCase()
+}
+
+function colorFor(rank: number, isSelf: boolean) {
+  if (isSelf) return SELF_COLOR
+  if (rank >= 1 && rank <= 3) return RANK_COLORS[rank - 1]
+  return DEFAULT_COLOR
+}
 
 function makeIcon(initials: string, color: string) {
   return L.divIcon({
@@ -27,14 +37,23 @@ function makeIcon(initials: string, color: string) {
 
 export default function Mapa() {
   const nav     = useNavigate()
+  const { id: roomCode } = useParams<{ id: string }>()
   const mapRef  = useRef<HTMLDivElement>(null)
   const leafRef = useRef<L.Map | null>(null)
+  const markersRef = useRef<Map<string, L.Marker>>(new Map())
+
+  const token = getToken() ?? ''
+  const claims = token ? decodeToken(token) : null
+  const selfEmail = (claims?.sub as string) ?? ''
+
+  const { ranking, sendPosition, connected } = useWebSocket(roomCode ?? '', token)
+  const { latitude, longitude } = useGeolocation()
 
   useEffect(() => {
     if (!mapRef.current || leafRef.current) return
 
     const map = L.map(mapRef.current, {
-      center:  [4.6589, -74.0963],
+      center:  DEFAULT_CENTER,
       zoom:    16,
       zoomControl: false,
       attributionControl: false,
@@ -44,15 +63,50 @@ export default function Mapa() {
       maxZoom: 19,
     }).addTo(map)
 
-    ATHLETES.forEach(a => {
-      L.marker([a.lat, a.lng], { icon: makeIcon(a.id, a.color) })
-        .addTo(map)
-        .bindTooltip(a.label, { permanent: false, direction: 'top', offset: [0, -20] })
-    })
-
     leafRef.current = map
     return () => { map.remove(); leafRef.current = null }
   }, [])
+
+  // Send GPS updates to the room as they arrive
+  useEffect(() => {
+    if (latitude != null && longitude != null) {
+      sendPosition(latitude, longitude)
+    }
+  }, [latitude, longitude, sendPosition])
+
+  // Sync markers with live ranking data
+  useEffect(() => {
+    const map = leafRef.current
+    if (!map) return
+
+    const seen = new Set<string>()
+
+    ranking.forEach(a => {
+      if (a.latitude === 0 && a.longitude === 0) return
+      seen.add(a.email)
+      const isSelf = a.email === selfEmail
+      const icon = makeIcon(initialsOf(a.name), colorFor(a.rank, isSelf))
+      const existing = markersRef.current.get(a.email)
+
+      if (existing) {
+        existing.setLatLng([a.latitude, a.longitude])
+        existing.setIcon(icon)
+        existing.setTooltipContent(isSelf ? `Tú (${a.name})` : a.name)
+      } else {
+        const marker = L.marker([a.latitude, a.longitude], { icon })
+          .addTo(map)
+          .bindTooltip(isSelf ? `Tú (${a.name})` : a.name, { permanent: false, direction: 'top', offset: [0, -20] })
+        markersRef.current.set(a.email, marker)
+      }
+    })
+
+    markersRef.current.forEach((marker, email) => {
+      if (!seen.has(email)) {
+        marker.remove()
+        markersRef.current.delete(email)
+      }
+    })
+  }, [ranking, selfEmail])
 
   return (
     <div className="shell" style={{ background: '#fff' }}>
@@ -68,15 +122,15 @@ export default function Mapa() {
         >←</button>
         <div style={{ flex: 1 }}>
           <p style={{ color: '#fff', fontWeight: 700, fontSize: 15 }}>
-            Sala de patinaje - Bogotá
+            Sala {roomCode}
           </p>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 2 }}>
-            <span style={{ color: 'rgba(255,255,255,0.6)', fontSize: 12 }}>4 atletas</span>
-            <span className="badge-live">En vivo</span>
+            <span style={{ color: 'rgba(255,255,255,0.6)', fontSize: 12 }}>{ranking.length} atletas</span>
+            {connected && <span className="badge-live">En vivo</span>}
           </div>
         </div>
         <button
-          onClick={() => nav('/sala/1/ranking')}
+          onClick={() => nav(`/sala/${roomCode}/ranking`)}
           style={{
             background: '#17C3B2', color: '#fff', borderRadius: 8,
             padding: '6px 12px', fontSize: 12, fontWeight: 600,
@@ -95,29 +149,32 @@ export default function Mapa() {
         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 10 }}>
           <span style={{ fontSize: 13, fontWeight: 700, color: '#0A1628' }}>Ranking en vivo</span>
           <span
-            onClick={() => nav('/sala/1/ranking')}
+            onClick={() => nav(`/sala/${roomCode}/ranking`)}
             style={{ fontSize: 12, color: '#17C3B2', fontWeight: 600, cursor: 'pointer' }}
           >Ver completo →</span>
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 7 }}>
-          {ATHLETES.map((a, i) => (
-            <div key={a.id} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-              <span style={{ fontSize: 12, color: '#94A3B8', width: 16, textAlign: 'center' }}>
-                {i + 1}
-              </span>
-              <div style={{
-                width: 26, height: 26, borderRadius: 50, background: a.color,
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                color: '#fff', fontSize: 9, fontWeight: 700,
-              }}>{a.id}</div>
-              <span style={{ flex: 1, fontSize: 13, color: '#1E293B', fontWeight: i === 0 ? 700 : 400 }}>
-                {a.label}
-              </span>
-              <span style={{ fontSize: 13, fontWeight: 600, color: i === 0 ? '#17C3B2' : '#64748B' }}>
-                {a.dist}
-              </span>
-            </div>
-          ))}
+          {ranking.map(a => {
+            const isSelf = a.email === selfEmail
+            return (
+              <div key={a.email} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                <span style={{ fontSize: 12, color: '#94A3B8', width: 16, textAlign: 'center' }}>
+                  {a.rank}
+                </span>
+                <div style={{
+                  width: 26, height: 26, borderRadius: 50, background: colorFor(a.rank, isSelf),
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  color: '#fff', fontSize: 9, fontWeight: 700,
+                }}>{initialsOf(a.name)}</div>
+                <span style={{ flex: 1, fontSize: 13, color: '#1E293B', fontWeight: a.rank === 1 ? 700 : 400 }}>
+                  {isSelf ? `Tú (${a.name})` : a.name}
+                </span>
+                <span style={{ fontSize: 13, fontWeight: 600, color: a.rank === 1 ? '#17C3B2' : '#64748B' }}>
+                  {a.distanceKm.toFixed(2)} km
+                </span>
+              </div>
+            )
+          })}
         </div>
       </div>
 
