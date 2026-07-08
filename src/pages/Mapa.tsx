@@ -6,7 +6,11 @@ import { getToken, decodeToken } from '../api/auth'
 import { useWebSocket } from '../hooks/useWebSocket'
 import { useGeolocation } from '../hooks/useGeolocation'
 
-const DEFAULT_CENTER: [number, number] = [4.6589, -74.0963] // Parque Simón Bolívar, Bogotá
+// Fallback center used only until the browser's geolocation service resolves
+// a real fix (or if the user denies permission). Never used once real coords arrive.
+const FALLBACK_CENTER: [number, number] = [4.6097, -74.0817] // Bogotá city center
+const FALLBACK_ZOOM = 12
+const LOCATED_ZOOM = 16
 const SELF_COLOR = '#17C3B2'
 const RANK_COLORS = ['#FFD700', '#C0C0C0', '#CD7F32'] // oro, plata, bronce
 const DEFAULT_COLOR = '#3B82F6'
@@ -47,14 +51,15 @@ export default function Mapa() {
   const selfEmail = (claims?.sub as string) ?? ''
 
   const { ranking, sendPosition, connected } = useWebSocket(roomCode ?? '', token)
-  const { latitude, longitude } = useGeolocation()
+  const { latitude, longitude, error: geoError } = useGeolocation()
+  const hasCenteredRef = useRef(false)
 
   useEffect(() => {
     if (!mapRef.current || leafRef.current) return
 
     const map = L.map(mapRef.current, {
-      center:  DEFAULT_CENTER,
-      zoom:    16,
+      center:  FALLBACK_CENTER,
+      zoom:    FALLBACK_ZOOM,
       zoomControl: false,
       attributionControl: false,
     })
@@ -67,11 +72,18 @@ export default function Mapa() {
     return () => { map.remove(); leafRef.current = null }
   }, [])
 
-  // Send GPS updates to the room as they arrive
+  // Once the browser's geolocation service resolves a real fix, center the map on it
+  // (only the first time - subsequent updates shouldn't yank the view around) and
+  // stream it to the room over the socket.
   useEffect(() => {
-    if (latitude != null && longitude != null) {
-      sendPosition(latitude, longitude)
+    if (latitude == null || longitude == null) return
+
+    if (!hasCenteredRef.current && leafRef.current) {
+      leafRef.current.setView([latitude, longitude], LOCATED_ZOOM);
+      hasCenteredRef.current = true
     }
+
+    sendPosition(latitude, longitude)
   }, [latitude, longitude, sendPosition])
 
   // Sync markers with live ranking data
@@ -139,7 +151,18 @@ export default function Mapa() {
       </div>
 
       {/* Map */}
-      <div ref={mapRef} style={{ flex: 1 }} />
+      <div style={{ position: 'relative', flex: 1 }}>
+        <div ref={mapRef} style={{ position: 'absolute', inset: 0 }} />
+        {geoError && (
+          <div style={{
+            position: 'absolute', top: 10, left: 10, right: 10, zIndex: 1000,
+            background: '#FEF2F2', border: '1px solid #FCA5A5', borderRadius: 10,
+            padding: '8px 12px', fontSize: 12, color: '#B91C1C',
+          }}>
+            No se pudo obtener tu ubicación ({geoError}). Habilita el permiso de GPS para transmitir tu posición.
+          </div>
+        )}
+      </div>
 
       {/* Mini ranking panel */}
       <div style={{
