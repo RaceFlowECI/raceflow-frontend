@@ -3,16 +3,6 @@ import { useNavigate } from 'react-router-dom'
 import { decodeToken, getToken } from '../api/auth'
 import { createRoom, joinRoom } from '../api/rooms'
 
-const ROOMS = [
-  { id: '1', name: 'Sala de patinaje - Bogotá', sport: 'Patinaje', athletes: 4 },
-  { id: '2', name: 'Running matutino - Parque', sport: 'Running',   athletes: 2 },
-  { id: '3', name: 'Entrenamiento grupal #3',   sport: 'Ciclismo',  athletes: 7 },
-]
-
-const SPORT_ICON: Record<string, string> = {
-  Patinaje: '⛸️', Running: '🏃', Ciclismo: '🚴',
-}
-
 export default function Salas() {
   const nav   = useNavigate()
   const [code, setCode] = useState<string[]>(Array(6).fill(''))
@@ -157,47 +147,6 @@ export default function Salas() {
           )}
         </div>
 
-        {/* Active rooms */}
-        <div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-            <h3 style={{ fontSize: 15, fontWeight: 700, color: '#0A1628' }}>Salas activas ahora</h3>
-            <span style={{ fontSize: 12, color: '#17C3B2', fontWeight: 600 }}>
-              {ROOMS.length} salas en curso
-            </span>
-          </div>
-
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-            {ROOMS.map(room => (
-              <div
-                key={room.id}
-                onClick={() => nav(`/sala/${room.id}/mapa`)}
-                style={{
-                  background: '#fff', borderRadius: 14, padding: '14px 16px',
-                  border: '1px solid #F1F5F9', boxShadow: '0 1px 6px rgba(0,0,0,0.04)',
-                  display: 'flex', alignItems: 'center', gap: 12, cursor: 'pointer',
-                  transition: 'box-shadow 0.2s',
-                }}
-              >
-                <div style={{
-                  width: 42, height: 42, background: '#F0FDFB', borderRadius: 10,
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  fontSize: 22, flexShrink: 0,
-                }}>
-                  {SPORT_ICON[room.sport]}
-                </div>
-                <div style={{ flex: 1 }}>
-                  <p style={{ fontSize: 14, fontWeight: 600, color: '#0A1628', marginBottom: 2 }}>
-                    {room.name}
-                  </p>
-                  <p style={{ fontSize: 12, color: '#64748B' }}>
-                    {room.sport} · {room.athletes} atletas
-                  </p>
-                </div>
-                <span className="badge-live">En vivo</span>
-              </div>
-            ))}
-          </div>
-        </div>
       </div>
 
       <div style={{
