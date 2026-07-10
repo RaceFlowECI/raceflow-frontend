@@ -13,13 +13,17 @@ export function useWebSocket(roomCode: string, token: string) {
   const closedByClientRef = useRef(false)
 
   useEffect(() => {
-    if (!roomCode || !token) return
+    // Allowlist validation: room codes are exactly 6 alphanumeric chars and
+    // tokens are JWTs (base64url segments); anything else never reaches the URL.
+    if (!/^[A-Za-z0-9]{6}$/.test(roomCode) || !/^[\w-]+\.[\w-]+\.[\w-]+$/.test(token)) return
 
     closedByClientRef.current = false
 
     const connect = () => {
       const base = import.meta.env.VITE_WS_URL
-      const ws = new WebSocket(`${base}/ws/room/${roomCode}?token=${token}`)
+      const ws = new WebSocket(
+        `${base}/ws/room/${encodeURIComponent(roomCode)}?token=${encodeURIComponent(token)}`,
+      )
       wsRef.current = ws
 
       ws.onopen = () => {
