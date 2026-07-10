@@ -1,12 +1,9 @@
 import { useEffect, useRef, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
+import { getToken, decodeToken } from '../api/auth'
+import { useWebSocket } from '../hooks/useWebSocket'
+import type { ReactionMessage } from '../types/raceflow'
 
-const PLAYERS = [
-  { id: 'JS', name: 'Tú (Juan S.)', dist: 2.34, speed: 18.2, isMe: true  },
-  { id: 'AM', name: 'Ana M.',       dist: 2.18, speed: 15.0, isMe: false },
-  { id: 'KR', name: 'Karla R.',     dist: 1.99, speed: 11.3, isMe: false },
-  { id: 'LP', name: 'Luis P.',      dist: 1.72, speed: 12.3, isMe: false },
-]
 const COLORS = ['#17C3B2', '#F59E0B', '#EF4444', '#10B981']
 const REACTIONS = ['🔥', '💪', '👏', '✨']
 
@@ -17,23 +14,46 @@ function fmt(secs: number) {
   return [h, m, s].map(n => String(n).padStart(2, '0')).join(':')
 }
 
+function initialsOf(name: string) {
+  return name.split(' ').map(p => p[0]).slice(0, 2).join('').toUpperCase()
+}
+
 export default function Ranking() {
   const nav       = useNavigate()
-  const [elapsed, setElapsed] = useState(24 * 60 + 37)
+  const { id: roomCode } = useParams<{ id: string }>()
+  const [elapsed, setElapsed] = useState(0)
   const [reaction, setReaction] = useState<string | null>(null)
+  const [incoming, setIncoming] = useState<string | null>(null)
   const timerRef  = useRef<ReturnType<typeof setInterval> | null>(null)
+
+  const token = getToken() ?? ''
+  const claims = token ? decodeToken(token) : null
+  const selfEmail = (claims?.sub as string) ?? ''
+
+  const { ranking, sendReaction: wsSendReaction } = useWebSocket(roomCode ?? '', token)
 
   useEffect(() => {
     timerRef.current = setInterval(() => setElapsed(e => e + 1), 1000)
     return () => { if (timerRef.current) clearInterval(timerRef.current) }
   }, [])
 
+  useEffect(() => {
+    const handler = (e: Event) => {
+      const detail = (e as CustomEvent<ReactionMessage>).detail
+      setIncoming(detail.emoji)
+      setTimeout(() => setIncoming(null), 2000)
+    }
+    window.addEventListener('raceflow:reaction', handler)
+    return () => window.removeEventListener('raceflow:reaction', handler)
+  }, [])
+
   const sendReaction = (r: string) => {
     setReaction(r)
+    wsSendReaction(r)
     setTimeout(() => setReaction(null), 2000)
   }
 
-  const maxDist = PLAYERS[0].dist
+  const maxDist = ranking.length > 0 ? Math.max(...ranking.map(p => p.distanceKm), 0.001) : 1
 
   return (
     <div className="shell" style={{ background: '#F8FAFC' }}>
@@ -43,7 +63,7 @@ export default function Ranking() {
         display: 'flex', alignItems: 'center', gap: 10,
       }}>
         <button
-          onClick={() => nav('/sala/1/mapa')}
+          onClick={() => nav(`/sala/${roomCode}/mapa`)}
           style={{ background: 'none', color: '#fff', fontSize: 20, padding: 4 }}
         >←</button>
         <div style={{ flex: 1 }}>
@@ -51,7 +71,7 @@ export default function Ranking() {
             Ranking en tiempo real
           </p>
           <p style={{ color: 'rgba(255,255,255,0.55)', fontSize: 12 }}>
-            Sala de patinaje · 4 atletas
+            Sala {roomCode} · {ranking.length} atletas
           </p>
         </div>
         <div style={{
@@ -81,71 +101,80 @@ export default function Ranking() {
 
         {/* Rankings */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-          {PLAYERS.map((p, i) => (
-            <div key={p.id} style={{
-              background: p.isMe ? '#F0FDFB' : '#fff',
-              border: p.isMe ? '2px solid #17C3B2' : '1.5px solid #F1F5F9',
-              borderRadius: 14, padding: '14px 16px',
-              boxShadow: p.isMe ? '0 4px 16px rgba(23,195,178,0.15)' : '0 1px 6px rgba(0,0,0,0.04)',
-            }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                {/* Position badge */}
-                <div style={{
-                  width: 32, height: 32, borderRadius: 50,
-                  background: i === 0 ? '#FEF3C7' : '#F1F5F9',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  color: i === 0 ? '#D97706' : '#64748B',
-                  fontWeight: 800, fontSize: 14, flexShrink: 0,
-                }}>
-                  {i + 1}
-                </div>
-
-                {/* Avatar */}
-                <div style={{
-                  width: 36, height: 36, borderRadius: 50, background: COLORS[i],
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  color: '#fff', fontWeight: 700, fontSize: 12, flexShrink: 0,
-                }}>
-                  {p.id}
-                </div>
-
-                {/* Info */}
-                <div style={{ flex: 1 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 2 }}>
-                    <span style={{ fontSize: 14, fontWeight: 700, color: '#0A1628' }}>{p.name}</span>
-                    {p.isMe && (
-                      <span style={{
-                        background: '#0A1628', color: '#fff', fontSize: 10,
-                        fontWeight: 700, padding: '2px 7px', borderRadius: 6,
-                      }}>TÚ</span>
-                    )}
-                  </div>
-                  <div style={{ display: 'flex', gap: 10 }}>
-                    <span style={{ fontSize: 12, color: p.isMe ? '#0A9088' : '#64748B', fontWeight: 600 }}>
-                      {p.dist.toFixed(2)} km
-                    </span>
-                    <span style={{ fontSize: 12, color: '#94A3B8' }}>
-                      {p.speed} km/h
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Progress bar */}
-              <div style={{ marginTop: 10 }}>
-                <div style={{ height: 6, background: '#F1F5F9', borderRadius: 6, overflow: 'hidden' }}>
+          {ranking.map((p, i) => {
+            const isMe = p.email === selfEmail
+            return (
+              <div key={p.email} style={{
+                background: isMe ? '#F0FDFB' : '#fff',
+                border: isMe ? '2px solid #17C3B2' : '1.5px solid #F1F5F9',
+                borderRadius: 14, padding: '14px 16px',
+                boxShadow: isMe ? '0 4px 16px rgba(23,195,178,0.15)' : '0 1px 6px rgba(0,0,0,0.04)',
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                  {/* Position badge */}
                   <div style={{
-                    height: '100%',
-                    width: `${(p.dist / maxDist) * 100}%`,
-                    background: COLORS[i],
-                    borderRadius: 6,
-                    transition: 'width 0.8s ease',
-                  }} />
+                    width: 32, height: 32, borderRadius: 50,
+                    background: p.rank === 1 ? '#FEF3C7' : '#F1F5F9',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    color: p.rank === 1 ? '#D97706' : '#64748B',
+                    fontWeight: 800, fontSize: 14, flexShrink: 0,
+                  }}>
+                    {p.rank}
+                  </div>
+
+                  {/* Avatar */}
+                  <div style={{
+                    width: 36, height: 36, borderRadius: 50, background: COLORS[i % COLORS.length],
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    color: '#fff', fontWeight: 700, fontSize: 12, flexShrink: 0,
+                  }}>
+                    {initialsOf(p.name)}
+                  </div>
+
+                  {/* Info */}
+                  <div style={{ flex: 1 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 2 }}>
+                      <span style={{ fontSize: 14, fontWeight: 700, color: '#0A1628' }}>{p.name}</span>
+                      {isMe && (
+                        <span style={{
+                          background: '#0A1628', color: '#fff', fontSize: 10,
+                          fontWeight: 700, padding: '2px 7px', borderRadius: 6,
+                        }}>TÚ</span>
+                      )}
+                      {!p.connected && (
+                        <span style={{ fontSize: 10, color: '#94A3B8' }}>desconectado</span>
+                      )}
+                    </div>
+                    <div style={{ display: 'flex', gap: 10 }}>
+                      <span style={{ fontSize: 12, color: isMe ? '#0A9088' : '#64748B', fontWeight: 600 }}>
+                        {p.distanceKm.toFixed(2)} km
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Progress bar */}
+                <div style={{ marginTop: 10 }}>
+                  <div style={{ height: 6, background: '#F1F5F9', borderRadius: 6, overflow: 'hidden' }}>
+                    <div style={{
+                      height: '100%',
+                      width: `${(p.distanceKm / maxDist) * 100}%`,
+                      background: COLORS[i % COLORS.length],
+                      borderRadius: 6,
+                      transition: 'width 0.8s ease',
+                    }} />
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            )
+          })}
         </div>
+
+        {incoming && (
+          <p style={{ fontSize: 12, color: '#64748B', textAlign: 'center', marginTop: 10 }}>
+            Alguien reaccionó {incoming}
+          </p>
+        )}
 
         {/* Reactions */}
         <div style={{
