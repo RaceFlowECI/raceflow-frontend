@@ -79,7 +79,10 @@ export default function Salas() {
                 onChange={e => handleChange(i, e.target.value)}
                 onKeyDown={e => handleKey(i, e)}
                 style={{
-                  flex: 1, height: 48, textAlign: 'center',
+                  // minWidth: 0 lets the inputs shrink below their intrinsic
+                  // width so the 6 boxes fit on narrow (mobile) screens
+                  flex: 1, minWidth: 0, width: '100%', boxSizing: 'border-box',
+                  height: 48, textAlign: 'center',
                   border: c ? '2px solid #17C3B2' : '2px solid #E2E8F0',
                   borderRadius: 10, fontSize: 18, fontWeight: 700,
                   color: '#0A1628', background: c ? '#F0FDFB' : '#F8FAFC',
