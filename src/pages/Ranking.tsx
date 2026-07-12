@@ -2,10 +2,9 @@ import { useEffect, useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { getToken, decodeToken } from '../api/auth'
 import { useWebSocket } from '../hooks/useWebSocket'
-import type { ReactionMessage } from '../types/raceflow'
+import { useVoiceChat } from '../hooks/useVoiceChat'
 
 const COLORS = ['#17C3B2', '#F59E0B', '#EF4444', '#10B981']
-const REACTIONS = ['🔥', '💪', '👏', '✨']
 
 function fmt(secs: number) {
   const h = Math.floor(secs / 3600)
@@ -22,36 +21,20 @@ export default function Ranking() {
   const nav       = useNavigate()
   const { id: roomCode } = useParams<{ id: string }>()
   const [elapsed, setElapsed] = useState(0)
-  const [reaction, setReaction] = useState<string | null>(null)
-  const [incoming, setIncoming] = useState<string | null>(null)
   const timerRef  = useRef<ReturnType<typeof setInterval> | null>(null)
 
   const token = getToken() ?? ''
   const claims = token ? decodeToken(token) : null
   const selfEmail = (claims?.sub as string) ?? ''
 
-  const { ranking, sendReaction: wsSendReaction } = useWebSocket(roomCode ?? '', token)
+  const { ranking, sendVoiceSignal } = useWebSocket(roomCode ?? '', token)
+  const { inCall, muted, voicePeers, micError, joinCall, leaveCall, toggleMute } =
+    useVoiceChat(selfEmail, sendVoiceSignal)
 
   useEffect(() => {
     timerRef.current = setInterval(() => setElapsed(e => e + 1), 1000)
     return () => { if (timerRef.current) clearInterval(timerRef.current) }
   }, [])
-
-  useEffect(() => {
-    const handler = (e: Event) => {
-      const detail = (e as CustomEvent<ReactionMessage>).detail
-      setIncoming(detail.emoji)
-      setTimeout(() => setIncoming(null), 2000)
-    }
-    window.addEventListener('raceflow:reaction', handler)
-    return () => window.removeEventListener('raceflow:reaction', handler)
-  }, [])
-
-  const sendReaction = (r: string) => {
-    setReaction(r)
-    wsSendReaction(r)
-    setTimeout(() => setReaction(null), 2000)
-  }
 
   const maxDist = ranking.length > 0 ? Math.max(...ranking.map(p => p.distanceKm), 0.001) : 1
 
@@ -170,40 +153,66 @@ export default function Ranking() {
           })}
         </div>
 
-        {incoming && (
-          <p style={{ fontSize: 12, color: '#64748B', textAlign: 'center', marginTop: 10 }}>
-            Alguien reaccionó {incoming}
-          </p>
-        )}
-
-        {/* Reactions */}
+        {/* Voice chat */}
         <div style={{
           background: '#fff', borderRadius: 14, padding: '16px',
           border: '1px solid #F1F5F9', marginTop: 16, textAlign: 'center',
         }}>
-          <p style={{ fontSize: 13, fontWeight: 600, color: '#0A1628', marginBottom: 12 }}>
-            Enviar reacción
+          <p style={{ fontSize: 13, fontWeight: 600, color: '#0A1628', marginBottom: 4 }}>
+            Chat de voz del grupo
           </p>
-          <div style={{ display: 'flex', justifyContent: 'center', gap: 14 }}>
-            {REACTIONS.map(r => (
+          <p style={{ fontSize: 11, color: '#94A3B8', marginBottom: 12 }}>
+            {voicePeers.length === 0
+              ? 'Nadie está en la llamada todavía'
+              : `${voicePeers.length} en la llamada: ${ranking
+                  .filter(p => voicePeers.includes(p.email))
+                  .map(p => (p.email === selfEmail ? 'Tú' : p.name))
+                  .join(', ') || voicePeers.length}`}
+          </p>
+
+          {!inCall ? (
+            <button
+              onClick={joinCall}
+              style={{
+                padding: '13px 26px', background: '#17C3B2', border: 'none',
+                borderRadius: 12, fontSize: 14, fontWeight: 700, color: '#fff',
+              }}
+            >
+              🎙 Unirse a la llamada
+            </button>
+          ) : (
+            <div style={{ display: 'flex', justifyContent: 'center', gap: 12 }}>
               <button
-                key={r}
-                onClick={() => sendReaction(r)}
+                onClick={toggleMute}
                 style={{
-                  fontSize: 28, background: reaction === r ? '#F0FDFB' : '#F8FAFC',
-                  border: reaction === r ? '2px solid #17C3B2' : '2px solid #E2E8F0',
-                  borderRadius: 14, width: 56, height: 56,
-                  transition: 'transform 0.15s, border-color 0.15s',
-                  transform: reaction === r ? 'scale(1.2)' : 'scale(1)',
+                  padding: '13px 22px', borderRadius: 12, fontSize: 14, fontWeight: 700,
+                  background: muted ? '#FEF3C7' : '#F1F5F9',
+                  border: muted ? '2px solid #D97706' : '2px solid #E2E8F0',
+                  color: muted ? '#D97706' : '#475569',
                 }}
               >
-                {r}
+                {muted ? '🔇 Micrófono apagado' : '🎙 Silenciar'}
               </button>
-            ))}
-          </div>
-          {reaction && (
-            <p style={{ fontSize: 12, color: '#17C3B2', fontWeight: 600, marginTop: 10 }}>
-              Reacción {reaction} enviada al grupo
+              <button
+                onClick={leaveCall}
+                style={{
+                  padding: '13px 22px', background: '#EF4444', border: 'none',
+                  borderRadius: 12, fontSize: 14, fontWeight: 700, color: '#fff',
+                }}
+              >
+                📵 Colgar
+              </button>
+            </div>
+          )}
+
+          {micError && (
+            <p style={{ fontSize: 12, color: '#EF4444', fontWeight: 600, marginTop: 10 }}>
+              {micError}
+            </p>
+          )}
+          {inCall && (
+            <p style={{ fontSize: 11, color: '#94A3B8', marginTop: 10 }}>
+              Audio P2P vía WebRTC — el servidor solo coordina la conexión
             </p>
           )}
         </div>
