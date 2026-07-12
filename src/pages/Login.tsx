@@ -45,15 +45,11 @@ export default function Login() {
     }}>
       {/* Brand */}
       <div style={{ textAlign: 'center', marginBottom: 36 }}>
-        <div style={{
-          width: 56, height: 56, background: '#17C3B2', borderRadius: 16,
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          margin: '0 auto 14px',
-        }}>
-          <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
-            <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" fill="white" strokeLinejoin="round"/>
-          </svg>
-        </div>
+        <img
+          src="/logo.png"
+          alt="RaceFlow"
+          style={{ width: 110, height: 110, borderRadius: 24, margin: '0 auto 14px', display: 'block' }}
+        />
         <h1 style={{ color: '#fff', fontSize: 28, fontWeight: 800, letterSpacing: '-0.5px' }}>RaceFlow</h1>
         <p style={{ color: 'rgba(255,255,255,0.55)', fontSize: 13, marginTop: 4 }}>
           Entrenamiento deportivo colaborativo en tiempo real
