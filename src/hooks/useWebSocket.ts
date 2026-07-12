@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, useCallback } from 'react'
-import type { AthleteRanking, ReactionMessage, RoomStateMessage } from '../types/raceflow'
+import type { AthleteRanking, RoomStateMessage, VoiceMessage } from '../types/raceflow'
 
 const MAX_RECONNECT_ATTEMPTS = 5
 const RECONNECT_DELAY_MS = 3000
@@ -33,11 +33,11 @@ export function useWebSocket(roomCode: string, token: string) {
 
       ws.onmessage = (event) => {
         try {
-          const data = JSON.parse(event.data) as RoomStateMessage | ReactionMessage
+          const data = JSON.parse(event.data) as RoomStateMessage | VoiceMessage
           if (data.type === 'ROOM_STATE') {
             setRanking(data.ranking)
-          } else if (data.type === 'REACTION') {
-            window.dispatchEvent(new CustomEvent('raceflow:reaction', { detail: data }))
+          } else if (data.type.startsWith('VOICE_')) {
+            window.dispatchEvent(new CustomEvent('raceflow:voice', { detail: data }))
           }
         } catch (err) {
           console.error('Failed to parse WS message', err)
@@ -73,11 +73,11 @@ export function useWebSocket(roomCode: string, token: string) {
     }
   }, [])
 
-  const sendReaction = useCallback((emoji: string) => {
+  const sendVoiceSignal = useCallback((payload: Record<string, unknown>) => {
     if (wsRef.current?.readyState === WebSocket.OPEN) {
-      wsRef.current.send(JSON.stringify({ type: 'REACTION', emoji }))
+      wsRef.current.send(JSON.stringify(payload))
     }
   }, [])
 
-  return { ranking, sendPosition, sendReaction, connected }
+  return { ranking, sendPosition, sendVoiceSignal, connected }
 }

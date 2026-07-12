@@ -15,11 +15,21 @@ export interface RoomStateMessage {
   timestamp: string
 }
 
-export interface ReactionMessage {
-  type: 'REACTION'
+export interface VoicePresenceMessage {
+  type: 'VOICE_PEER_JOINED' | 'VOICE_PEER_LEFT'
   from: string
-  emoji: string
+  peers: string[]
 }
+
+export interface VoiceSignalMessage {
+  type: 'VOICE_OFFER' | 'VOICE_ANSWER' | 'VOICE_ICE'
+  from: string
+  to: string
+  sdp?: string
+  candidate?: string
+}
+
+export type VoiceMessage = VoicePresenceMessage | VoiceSignalMessage
 
 export interface AuthResponse {
   token: string
