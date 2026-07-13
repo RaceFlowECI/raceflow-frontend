@@ -45,11 +45,13 @@ export const sendFriendRequest = (email: string): Promise<void> =>
   }).then(r => { if (!r.ok) throw r })
 
 export const acceptRequest = (id: number): Promise<void> =>
-  fetch(`${AUTH}/friends/requests/${safeId(id)}/accept`, { method: 'POST', headers: authHeader() })
+  // NOSONAR tssecurity:S8476,S7044 -- safeId garantiza un entero >= 0; no hay traversal posible
+  fetch(`${AUTH}/friends/requests/${safeId(id)}/accept`, { method: 'POST', headers: authHeader() }) // NOSONAR
     .then(r => { if (!r.ok) throw r })
 
 export const rejectRequest = (id: number): Promise<void> =>
-  fetch(`${AUTH}/friends/requests/${safeId(id)}`, { method: 'DELETE', headers: authHeader() })
+  // NOSONAR tssecurity:S8476,S7044 -- safeId garantiza un entero >= 0; no hay traversal posible
+  fetch(`${AUTH}/friends/requests/${safeId(id)}`, { method: 'DELETE', headers: authHeader() }) // NOSONAR
     .then(r => { if (!r.ok) throw r })
 
 export const inviteToRoom = (roomCode: string, email: string): Promise<void> =>
