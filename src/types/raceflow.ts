@@ -46,3 +46,22 @@ export interface JoinRoomResponse {
   roomCode: string
   athleteCount: number
 }
+
+export interface Friend {
+  email: string
+  name: string
+  sport?: string
+}
+
+export interface PendingRequest {
+  id: number
+  fromEmail: string
+  fromName: string
+}
+
+export interface RoomInvitation {
+  roomCode: string
+  fromEmail: string
+  fromName: string
+  sentAt: string
+}

@@ -1,8 +1,10 @@
 import { useEffect, useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { getToken, decodeToken } from '../api/auth'
+import { inviteToRoom, listFriends } from '../api/friends'
 import { useWebSocket } from '../hooks/useWebSocket'
 import { useVoiceChat } from '../hooks/useVoiceChat'
+import type { Friend } from '../types/raceflow'
 
 const COLORS = ['#17C3B2', '#F59E0B', '#EF4444', '#10B981']
 
@@ -30,6 +32,24 @@ export default function Ranking() {
   const { ranking, sendVoiceSignal } = useWebSocket(roomCode ?? '', token)
   const { inCall, muted, voicePeers, micError, joinCall, leaveCall, toggleMute } =
     useVoiceChat(selfEmail, sendVoiceSignal)
+
+  const [showInvite, setShowInvite] = useState(false)
+  const [friends, setFriends] = useState<Friend[]>([])
+  const [invited, setInvited] = useState<string[]>([])
+
+  const openInvite = async () => {
+    setShowInvite(!showInvite)
+    if (!showInvite) {
+      try { setFriends(await listFriends()) } catch { setFriends([]) }
+    }
+  }
+
+  const invite = async (email: string) => {
+    try {
+      await inviteToRoom(roomCode ?? '', email)
+      setInvited([...invited, email])
+    } catch { /* la invitación fallida simplemente no marca el check */ }
+  }
 
   useEffect(() => {
     timerRef.current = setInterval(() => setElapsed(e => e + 1), 1000)
@@ -214,6 +234,48 @@ export default function Ranking() {
             <p style={{ fontSize: 11, color: '#94A3B8', marginTop: 10 }}>
               Audio P2P vía WebRTC — el servidor solo coordina la conexión
             </p>
+          )}
+        </div>
+
+        {/* Invite friends */}
+        <div style={{
+          background: '#fff', borderRadius: 14, padding: '16px',
+          border: '1px solid #F1F5F9', marginTop: 16,
+        }}>
+          <button
+            onClick={openInvite}
+            style={{
+              width: '100%', padding: '12px', background: '#F0FDFB', color: '#0A9088',
+              border: '2px solid #17C3B2', borderRadius: 12, fontSize: 14, fontWeight: 700,
+            }}
+          >
+            👥 Invitar amigos a esta sala {showInvite ? '▲' : '▼'}
+          </button>
+
+          {showInvite && (
+            <div style={{ marginTop: 12 }}>
+              {friends.length === 0 && (
+                <p style={{ fontSize: 12, color: '#94A3B8', textAlign: 'center' }}>
+                  No tienes amigos aún — agrégalos desde Salas → Amigos
+                </p>
+              )}
+              {friends.map(f => (
+                <div key={f.email} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 0' }}>
+                  <div style={{ flex: 1, minWidth: 0, textAlign: 'left' }}>
+                    <p style={{ fontSize: 13, fontWeight: 600, color: '#0A1628' }}>{f.name}</p>
+                    <p style={{ fontSize: 11, color: '#94A3B8' }}>{f.email}</p>
+                  </div>
+                  {invited.includes(f.email) ? (
+                    <span style={{ fontSize: 12, color: '#0A9088', fontWeight: 700 }}>✓ Invitado</span>
+                  ) : (
+                    <button onClick={() => invite(f.email)} style={{
+                      padding: '7px 12px', background: '#17C3B2', color: '#fff',
+                      border: 'none', borderRadius: 9, fontSize: 12, fontWeight: 700,
+                    }}>Invitar</button>
+                  )}
+                </div>
+              ))}
+            </div>
           )}
         </div>
       </div>

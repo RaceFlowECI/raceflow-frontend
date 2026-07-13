@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import Login   from './pages/Login'
 import Salas   from './pages/Salas'
+import Amigos  from './pages/Amigos'
 import Mapa    from './pages/Mapa'
 import Ranking from './pages/Ranking'
 
@@ -11,6 +12,7 @@ export default function App() {
         <Route path="/"              element={<Navigate to="/login" replace />} />
         <Route path="/login"         element={<Login />} />
         <Route path="/salas"         element={<Salas />} />
+        <Route path="/amigos"        element={<Amigos />} />
         <Route path="/sala/:id/mapa" element={<Mapa />} />
         <Route path="/sala/:id/ranking" element={<Ranking />} />
       </Routes>
