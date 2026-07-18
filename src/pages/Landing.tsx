@@ -32,11 +32,11 @@ const FEATURES = [
 ]
 
 const TICKER_ITEMS = [
-  <span key="a"><em>▲ 2</em> Ana toma la delantera</span>,
-  <span key="b">Sala <em>K7X2M9</em> activa · 4 atletas</span>,
-  <span key="c">Ranking recalculado en <em>212 ms</em></span>,
-  <span key="d"><em>+1</em> Diego se unió a la sala</span>,
-  <span key="e">Chat de voz · <em>3</em> en llamada</span>,
+  { id: 'lead',    content: <><em>▲ 2</em> Ana toma la delantera</> },
+  { id: 'room',    content: <>Sala <em>K7X2M9</em> activa · 4 atletas</> },
+  { id: 'ranking', content: <>Ranking recalculado en <em>212 ms</em></> },
+  { id: 'join',    content: <><em>+1</em> Diego se unió a la sala</> },
+  { id: 'voice',   content: <>Chat de voz · <em>3</em> en llamada</> },
 ]
 
 /**
@@ -59,7 +59,7 @@ export default function Landing() {
       <nav className="rf-nav">
         <a className="rf-brand" href="/">
           <img src="/logo.png" alt="" />
-          RACEFLOW
+          <span>RACEFLOW</span>
         </a>
         <Link className="rf-nav-cta" to="/login">Iniciar sesión</Link>
       </nav>
@@ -100,8 +100,9 @@ export default function Landing() {
 
       <div className="rf-ticker" aria-hidden="true">
         <div className="rf-ticker-track">
-          {TICKER_ITEMS}
-          {TICKER_ITEMS.map((item, i) => <span key={`dup-${i}`}>{item.props.children}</span>)}
+          {/* Rendered twice so the -50% marquee translation loops seamlessly */}
+          {TICKER_ITEMS.map(item => <span key={item.id}>{item.content}</span>)}
+          {TICKER_ITEMS.map(item => <span key={`dup-${item.id}`}>{item.content}</span>)}
         </div>
       </div>
 
