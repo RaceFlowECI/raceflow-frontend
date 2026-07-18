@@ -10,7 +10,9 @@ test.describe('register and create a room', () => {
   test('a new athlete can register and immediately create a training room', async ({ page }) => {
     const uniqueEmail = `e2e-${Date.now()}@raceflow.dev`
 
-    await page.goto('/')
+    // Target /login directly: once the marketing landing (PR #16) merges,
+    // "/" no longer shows the auth form.
+    await page.goto('/login')
 
     // Switch to the registration form
     await page.getByTestId('auth-toggle-mode').click()
