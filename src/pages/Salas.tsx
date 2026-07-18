@@ -205,12 +205,12 @@ export default function Salas() {
             <div style={{ flex: 1, height: 1, background: '#E2E8F0' }} />
           </div>
 
-          <button className="btn-dark" onClick={handleCreate} disabled={busy}>
+          <button data-testid="create-room" className="btn-dark" onClick={handleCreate} disabled={busy}>
             + Crear sala de entrenamiento
           </button>
 
           {error && (
-            <p style={{ fontSize: 12, color: '#EF4444', fontWeight: 600, marginTop: 10 }}>{error}</p>
+            <p data-testid="rooms-error" style={{ fontSize: 12, color: '#EF4444', fontWeight: 600, marginTop: 10 }}>{error}</p>
           )}
         </div>
 
