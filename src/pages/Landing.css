@@ -1,0 +1,342 @@
+@import url('https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=Sora:wght@300;400;600&display=swap');
+
+/* ============================================================
+   RaceFlow Landing — "night race" telemetry aesthetic.
+   Scoped under .rf-landing so it never leaks into the app shell.
+   ============================================================ */
+
+.rf-landing {
+  --rf-navy:   #071020;
+  --rf-navy-2: #0A1628;
+  --rf-navy-3: #122240;
+  --rf-teal:   #17C3B2;
+  --rf-coral:  #FF6961;
+  --rf-ink:    #E8F1F2;
+  --rf-muted:  rgba(232, 241, 242, 0.55);
+  --rf-line:   rgba(23, 195, 178, 0.14);
+  --rf-display: 'Chakra Petch', monospace;
+  --rf-body:    'Sora', sans-serif;
+
+  font-family: var(--rf-body);
+  background: var(--rf-navy);
+  color: var(--rf-ink);
+  min-height: 100dvh;
+  overflow-x: hidden;
+}
+
+.rf-landing ::selection { background: var(--rf-teal); color: var(--rf-navy); }
+
+/* ---------- Contour-line backdrop ---------- */
+.rf-backdrop {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background:
+    radial-gradient(ellipse 80% 55% at 70% -10%, rgba(23,195,178,0.13), transparent 60%),
+    radial-gradient(ellipse 60% 40% at 10% 110%, rgba(255,105,97,0.07), transparent 60%),
+    var(--rf-navy);
+}
+.rf-backdrop svg { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0.5; }
+.rf-contour {
+  fill: none;
+  stroke: var(--rf-line);
+  stroke-width: 1;
+  stroke-dasharray: 6 10;
+  animation: rf-drift 40s linear infinite;
+}
+.rf-contour:nth-child(2n) { animation-duration: 55s; animation-direction: reverse; }
+@keyframes rf-drift { to { stroke-dashoffset: -320; } }
+
+.rf-landing > * { position: relative; z-index: 1; }
+
+/* ---------- Nav ---------- */
+.rf-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 22px clamp(20px, 6vw, 72px);
+}
+.rf-brand {
+  display: flex; align-items: center; gap: 12px;
+  font-family: var(--rf-display);
+  font-weight: 700; font-size: 19px; letter-spacing: 0.06em;
+  color: var(--rf-ink); text-decoration: none;
+}
+.rf-brand img { width: 38px; height: 38px; border-radius: 10px; }
+.rf-nav-cta {
+  font-family: var(--rf-display);
+  font-size: 13px; font-weight: 600; letter-spacing: 0.12em;
+  color: var(--rf-teal);
+  border: 1px solid rgba(23,195,178,0.45);
+  background: transparent;
+  padding: 10px 22px; border-radius: 4px;
+  text-decoration: none;
+  transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+}
+.rf-nav-cta:hover {
+  background: var(--rf-teal); color: var(--rf-navy);
+  box-shadow: 0 0 24px rgba(23,195,178,0.45);
+}
+
+/* ---------- Hero ---------- */
+.rf-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+  gap: clamp(32px, 5vw, 72px);
+  align-items: center;
+  padding: clamp(40px, 8vh, 96px) clamp(20px, 6vw, 72px) clamp(56px, 10vh, 120px);
+  max-width: 1240px;
+  margin: 0 auto;
+}
+@media (max-width: 880px) { .rf-hero { grid-template-columns: 1fr; } }
+
+.rf-kicker {
+  display: inline-flex; align-items: center; gap: 10px;
+  font-family: var(--rf-display);
+  font-size: 12px; font-weight: 600; letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--rf-teal);
+  margin-bottom: 22px;
+  opacity: 0;
+  animation: rf-rise 0.7s 0.05s cubic-bezier(0.2, 0.7, 0.2, 1) forwards;
+}
+.rf-kicker::before {
+  content: '';
+  width: 9px; height: 9px; border-radius: 50%;
+  background: var(--rf-teal);
+  box-shadow: 0 0 0 0 rgba(23,195,178,0.6);
+  animation: rf-ping 2.2s ease-out infinite;
+}
+@keyframes rf-ping {
+  0%   { box-shadow: 0 0 0 0 rgba(23,195,178,0.6); }
+  70%  { box-shadow: 0 0 0 14px rgba(23,195,178,0); }
+  100% { box-shadow: 0 0 0 0 rgba(23,195,178,0); }
+}
+
+.rf-hero h1 {
+  font-family: var(--rf-display);
+  font-weight: 700;
+  font-size: clamp(40px, 6.5vw, 78px);
+  line-height: 1.02;
+  letter-spacing: -0.015em;
+  text-transform: uppercase;
+  opacity: 0;
+  animation: rf-rise 0.8s 0.15s cubic-bezier(0.2, 0.7, 0.2, 1) forwards;
+}
+.rf-hero h1 em {
+  font-style: normal;
+  color: var(--rf-teal);
+  text-shadow: 0 0 34px rgba(23,195,178,0.55);
+}
+
+.rf-hero p {
+  margin-top: 22px;
+  max-width: 46ch;
+  font-size: clamp(15px, 1.4vw, 17px);
+  font-weight: 300;
+  line-height: 1.7;
+  color: var(--rf-muted);
+  opacity: 0;
+  animation: rf-rise 0.8s 0.28s cubic-bezier(0.2, 0.7, 0.2, 1) forwards;
+}
+
+.rf-hero-actions {
+  display: flex; flex-wrap: wrap; gap: 14px;
+  margin-top: 36px;
+  opacity: 0;
+  animation: rf-rise 0.8s 0.4s cubic-bezier(0.2, 0.7, 0.2, 1) forwards;
+}
+.rf-btn-solid {
+  font-family: var(--rf-display);
+  font-size: 14px; font-weight: 700; letter-spacing: 0.14em;
+  text-transform: uppercase; text-decoration: none;
+  color: var(--rf-navy);
+  background: var(--rf-teal);
+  padding: 16px 34px;
+  border-radius: 4px;
+  clip-path: polygon(0 0, calc(100% - 14px) 0, 100% 14px, 100% 100%, 14px 100%, 0 calc(100% - 14px));
+  box-shadow: 0 8px 40px rgba(23,195,178,0.35);
+  transition: transform 0.18s, box-shadow 0.18s;
+}
+.rf-btn-solid:hover { transform: translateY(-2px); box-shadow: 0 14px 52px rgba(23,195,178,0.5); }
+.rf-btn-ghost {
+  font-family: var(--rf-display);
+  font-size: 14px; font-weight: 600; letter-spacing: 0.14em;
+  text-transform: uppercase; text-decoration: none;
+  color: var(--rf-ink);
+  padding: 16px 30px;
+  border: 1px solid rgba(232,241,242,0.22);
+  border-radius: 4px;
+  transition: border-color 0.2s, color 0.2s;
+}
+.rf-btn-ghost:hover { border-color: var(--rf-teal); color: var(--rf-teal); }
+
+@keyframes rf-rise {
+  from { opacity: 0; transform: translateY(26px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ---------- Live ranking mock ---------- */
+.rf-rank-card {
+  background: linear-gradient(165deg, rgba(18,34,64,0.9), rgba(10,22,40,0.92));
+  border: 1px solid rgba(23,195,178,0.22);
+  border-radius: 14px;
+  padding: 22px;
+  box-shadow: 0 30px 80px rgba(0,0,0,0.55);
+  transform: rotate(1.6deg);
+  opacity: 0;
+  animation: rf-rise 0.9s 0.5s cubic-bezier(0.2, 0.7, 0.2, 1) forwards;
+}
+.rf-rank-head {
+  display: flex; align-items: center; justify-content: space-between;
+  font-family: var(--rf-display);
+  font-size: 12px; letter-spacing: 0.2em; text-transform: uppercase;
+  color: var(--rf-muted);
+  margin-bottom: 16px;
+}
+.rf-live {
+  display: inline-flex; align-items: center; gap: 7px;
+  color: var(--rf-coral); font-weight: 700;
+}
+.rf-live::before {
+  content: ''; width: 7px; height: 7px; border-radius: 50%;
+  background: var(--rf-coral);
+  animation: rf-blink 1.1s steps(2, start) infinite;
+}
+@keyframes rf-blink { to { visibility: hidden; } }
+
+.rf-rank-row {
+  display: grid;
+  grid-template-columns: 34px 1fr auto;
+  align-items: center; gap: 12px;
+  padding: 11px 12px;
+  border-radius: 8px;
+  font-size: 14px;
+}
+.rf-rank-row + .rf-rank-row { margin-top: 6px; }
+.rf-rank-row.is-leader {
+  background: rgba(23,195,178,0.1);
+  border: 1px solid rgba(23,195,178,0.35);
+}
+.rf-rank-pos {
+  font-family: var(--rf-display);
+  font-weight: 700; font-size: 17px;
+  color: var(--rf-teal);
+}
+.rf-rank-row .rf-rank-name { font-weight: 400; color: var(--rf-ink); }
+.rf-rank-km {
+  font-family: var(--rf-display);
+  font-size: 13px; color: var(--rf-muted);
+}
+.rf-rank-bar {
+  grid-column: 2 / 4;
+  height: 3px; border-radius: 2px;
+  background: rgba(232,241,242,0.08);
+  overflow: hidden;
+  margin-top: 6px;
+}
+.rf-rank-bar i {
+  display: block; height: 100%;
+  background: linear-gradient(90deg, var(--rf-teal), rgba(23,195,178,0.35));
+  animation: rf-fill 3.2s ease-in-out infinite alternate;
+}
+@keyframes rf-fill { from { transform: translateX(-6%); } to { transform: translateX(0); } }
+
+/* ---------- Ticker ---------- */
+.rf-ticker {
+  border-top: 1px solid var(--rf-line);
+  border-bottom: 1px solid var(--rf-line);
+  overflow: hidden;
+  padding: 13px 0;
+  background: rgba(10,22,40,0.6);
+}
+.rf-ticker-track {
+  display: flex; gap: 56px; width: max-content;
+  font-family: var(--rf-display);
+  font-size: 12px; letter-spacing: 0.24em; text-transform: uppercase;
+  color: var(--rf-muted);
+  animation: rf-marquee 30s linear infinite;
+}
+.rf-ticker-track span em { color: var(--rf-teal); font-style: normal; }
+@keyframes rf-marquee { to { transform: translateX(-50%); } }
+
+/* ---------- Features ---------- */
+.rf-features {
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: clamp(64px, 12vh, 130px) clamp(20px, 6vw, 72px);
+}
+.rf-section-tag {
+  font-family: var(--rf-display);
+  font-size: 12px; font-weight: 600; letter-spacing: 0.28em;
+  text-transform: uppercase; color: var(--rf-coral);
+}
+.rf-features h2, .rf-cta h2 {
+  font-family: var(--rf-display);
+  font-weight: 700;
+  font-size: clamp(28px, 3.6vw, 44px);
+  text-transform: uppercase;
+  letter-spacing: -0.01em;
+  margin-top: 12px;
+  max-width: 22ch;
+}
+.rf-feature-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 18px;
+  margin-top: 48px;
+}
+.rf-feature {
+  border: 1px solid rgba(232,241,242,0.1);
+  border-radius: 12px;
+  padding: 26px 24px 30px;
+  background: rgba(18,34,64,0.35);
+  transition: transform 0.25s, border-color 0.25s, background 0.25s;
+}
+.rf-feature:hover {
+  transform: translateY(-6px);
+  border-color: rgba(23,195,178,0.5);
+  background: rgba(18,34,64,0.6);
+}
+.rf-feature-num {
+  font-family: var(--rf-display);
+  font-size: 12px; letter-spacing: 0.2em;
+  color: var(--rf-teal);
+}
+.rf-feature h3 {
+  font-family: var(--rf-display);
+  font-size: 17px; font-weight: 600;
+  text-transform: uppercase; letter-spacing: 0.04em;
+  margin: 14px 0 10px;
+}
+.rf-feature p { font-size: 13.5px; font-weight: 300; line-height: 1.65; color: var(--rf-muted); }
+
+/* ---------- CTA ---------- */
+.rf-cta {
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: 0 clamp(20px, 6vw, 72px) clamp(72px, 14vh, 150px);
+  text-align: center;
+}
+.rf-cta h2 { margin: 12px auto 0; }
+.rf-cta p { color: var(--rf-muted); font-weight: 300; margin-top: 16px; }
+.rf-cta .rf-btn-solid { display: inline-block; margin-top: 34px; }
+
+/* ---------- Footer ---------- */
+.rf-footer {
+  border-top: 1px solid var(--rf-line);
+  padding: 26px clamp(20px, 6vw, 72px);
+  display: flex; flex-wrap: wrap; gap: 12px;
+  align-items: center; justify-content: space-between;
+  font-size: 12px; color: var(--rf-muted);
+}
+.rf-footer b { font-family: var(--rf-display); letter-spacing: 0.08em; color: var(--rf-ink); }
+
+@media (prefers-reduced-motion: reduce) {
+  .rf-landing *, .rf-landing *::before, .rf-landing *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    opacity: 1 !important;
+  }
+}
