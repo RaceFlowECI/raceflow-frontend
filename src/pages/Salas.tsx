@@ -107,6 +107,7 @@ export default function Salas() {
       }}>
         <h1 style={{ fontSize: 22, fontWeight: 800, color: '#0A1628', flex: 1 }}>Salas</h1>
         <button
+          type="button"
           onClick={() => nav('/amigos')}
           style={{
             padding: '9px 14px', background: '#F0FDFB', color: '#0A9088',
@@ -140,11 +141,11 @@ export default function Salas() {
                   </p>
                   <p style={{ fontSize: 11, color: '#94A3B8' }}>Sala {inv.roomCode}</p>
                 </div>
-                <button onClick={() => acceptInvitation(inv)} disabled={busy} style={{
+                <button type="button" onClick={() => acceptInvitation(inv)} disabled={busy} style={{
                   padding: '8px 14px', background: '#17C3B2', color: '#fff',
                   border: 'none', borderRadius: 9, fontSize: 12, fontWeight: 700,
                 }}>Unirse</button>
-                <button onClick={() => dismissInvitation(inv)} style={{
+                <button type="button" onClick={() => dismissInvitation(inv)} style={{
                   padding: '8px 12px', background: '#F1F5F9', color: '#64748B',
                   border: 'none', borderRadius: 9, fontSize: 12, fontWeight: 700,
                 }}>✕</button>
@@ -191,6 +192,7 @@ export default function Salas() {
           </div>
 
           <button
+            type="button"
             className="btn-primary"
             disabled={joinCode.length < 6 || busy}
             onClick={handleJoin}
@@ -205,7 +207,7 @@ export default function Salas() {
             <div style={{ flex: 1, height: 1, background: '#E2E8F0' }} />
           </div>
 
-          <button data-testid="create-room" className="btn-dark" onClick={handleCreate} disabled={busy}>
+          <button type="button" data-testid="create-room" className="btn-dark" onClick={handleCreate} disabled={busy}>
             + Crear sala de entrenamiento
           </button>
 

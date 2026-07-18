@@ -133,6 +133,7 @@ export default function Login() {
         </div>
 
         <button
+          type="button"
           data-testid="auth-toggle-mode"
           onClick={() => setMode(mode === 'login' ? 'register' : 'login')}
           style={{
