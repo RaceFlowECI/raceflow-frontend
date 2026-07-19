@@ -76,6 +76,7 @@ export default function Login() {
             <div>
               <label style={labelStyle}>NOMBRE COMPLETO</label>
               <input
+                data-testid="register-name"
                 style={inputStyle}
                 type="text"
                 placeholder="Juan Sebastián"
@@ -92,6 +93,7 @@ export default function Login() {
           <div>
             <label style={labelStyle}>CORREO ELECTRÓNICO</label>
             <input
+              data-testid="login-email"
               style={inputStyle}
               type="email"
               placeholder="atleta@ejemplo.com"
@@ -110,6 +112,7 @@ export default function Login() {
               )}
             </div>
             <input
+              data-testid="login-password"
               style={inputStyle}
               type="password"
               placeholder="••••••••"
@@ -118,7 +121,7 @@ export default function Login() {
             />
           </div>
 
-          <button type="submit" className="btn-primary" style={{ marginTop: 6 }} disabled={loading}>
+          <button data-testid="auth-submit" type="submit" className="btn-primary" style={{ marginTop: 6 }} disabled={loading}>
             {loading ? 'Cargando...' : mode === 'login' ? 'Iniciar sesión' : 'Crear cuenta'}
           </button>
         </form>
@@ -130,6 +133,8 @@ export default function Login() {
         </div>
 
         <button
+          type="button"
+          data-testid="auth-toggle-mode"
           onClick={() => setMode(mode === 'login' ? 'register' : 'login')}
           style={{
             width: '100%', padding: '13px', background: 'transparent',
