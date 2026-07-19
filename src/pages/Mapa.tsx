@@ -39,12 +39,17 @@ function makeIcon(initials: string, color: string) {
   })
 }
 
+// Trail cap per athlete: at one point per ROOM_STATE broadcast this covers a
+// long session while bounding memory; older points are dropped from the tail.
+const MAX_TRAIL_POINTS = 600
+
 export default function Mapa() {
   const nav     = useNavigate()
   const { id: roomCode } = useParams<{ id: string }>()
   const mapRef  = useRef<HTMLDivElement>(null)
   const leafRef = useRef<L.Map | null>(null)
   const markersRef = useRef<Map<string, L.Marker>>(new Map())
+  const trailsRef = useRef<Map<string, { points: [number, number][]; line: L.Polyline }>>(new Map())
 
   const token = getToken() ?? ''
   const claims = token ? decodeToken(token) : null
@@ -69,7 +74,14 @@ export default function Mapa() {
     }).addTo(map)
 
     leafRef.current = map
-    return () => { map.remove(); leafRef.current = null }
+    return () => {
+      map.remove()
+      leafRef.current = null
+      // map.remove() already detaches the layers; drop our stale references
+      // so a remount starts markers/trails from scratch.
+      markersRef.current.clear()
+      trailsRef.current.clear()
+    }
   }, [])
 
   // Once the browser's geolocation service resolves a real fix, center the map on it
@@ -86,7 +98,10 @@ export default function Mapa() {
     sendPosition(latitude, longitude)
   }, [latitude, longitude, sendPosition])
 
-  // Sync markers with live ranking data
+  // Sync markers and per-athlete trails with live ranking data. The backend
+  // only keeps each athlete's LAST position (rooms are in-memory and
+  // ephemeral), so the trajectory is accumulated client-side from the
+  // ROOM_STATE broadcasts received while this screen is open.
   useEffect(() => {
     const map = leafRef.current
     if (!map) return
@@ -97,7 +112,8 @@ export default function Mapa() {
       if (a.latitude === 0 && a.longitude === 0) return
       seen.add(a.email)
       const isSelf = a.email === selfEmail
-      const icon = makeIcon(initialsOf(a.name), colorFor(a.rank, isSelf))
+      const color = colorFor(a.rank, isSelf)
+      const icon = makeIcon(initialsOf(a.name), color)
       const existing = markersRef.current.get(a.email)
 
       if (existing) {
@@ -110,12 +126,39 @@ export default function Mapa() {
           .bindTooltip(isSelf ? `Tú (${a.name})` : a.name, { permanent: false, direction: 'top', offset: [0, -20] })
         markersRef.current.set(a.email, marker)
       }
+
+      // --- Trail ---
+      let trail = trailsRef.current.get(a.email)
+      if (!trail) {
+        trail = {
+          points: [],
+          line: L.polyline([], { color, weight: 4, opacity: 0.65, lineCap: 'round', lineJoin: 'round' }).addTo(map),
+        }
+        trailsRef.current.set(a.email, trail)
+      }
+
+      // Every broadcast repeats each athlete's current position even if only
+      // someone else moved, so only append when this athlete actually moved.
+      const last = trail.points[trail.points.length - 1]
+      if (!last || last[0] !== a.latitude || last[1] !== a.longitude) {
+        trail.points.push([a.latitude, a.longitude])
+        if (trail.points.length > MAX_TRAIL_POINTS) trail.points.shift()
+        trail.line.setLatLngs(trail.points)
+      }
+      // Keep the trail color in sync with the marker (rank changes recolor both)
+      trail.line.setStyle({ color })
     })
 
     markersRef.current.forEach((marker, email) => {
       if (!seen.has(email)) {
         marker.remove()
         markersRef.current.delete(email)
+      }
+    })
+    trailsRef.current.forEach((trail, email) => {
+      if (!seen.has(email)) {
+        trail.line.remove()
+        trailsRef.current.delete(email)
       }
     })
   }, [ranking, selfEmail])
