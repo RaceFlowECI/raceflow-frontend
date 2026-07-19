@@ -12,23 +12,37 @@ const FEATURES = [
   {
     num: '01 / GPS',
     title: 'Posición en vivo',
-    body: 'Cada atleta transmite sus coordenadas por WebSocket y ve al resto del equipo moverse sobre el mapa en tiempo real, sin refrescar nada.',
+    body: 'Todo el grupo moviéndose en el mapa, sin refrescar.',
+    bullets: ['Coordenadas por WebSocket', 'Trayectoria dibujada en vivo', 'Cero recargas'],
   },
   {
     num: '02 / Ranking',
     title: 'Ranking instantáneo',
-    body: 'La distancia recorrida se recalcula con cada posición recibida. El orden del grupo cambia en vivo, con un SLO de p99 ≤ 1 segundo.',
+    body: 'El orden cambia con cada metro recorrido.',
+    bullets: ['Recálculo con cada posición', 'SLO p99 ≤ 1 segundo', 'Distancia por Haversine'],
   },
   {
     num: '03 / Voz',
     title: 'Chat de voz P2P',
-    body: 'Habla con tu grupo mientras entrenas. El audio viaja directo entre navegadores vía WebRTC — el servidor solo hace la señalización.',
+    body: 'Habla con tu manada mientras entrenas.',
+    bullets: ['Audio directo vía WebRTC', 'El servidor solo señaliza', 'Silencia y cuelga a un toque'],
   },
   {
     num: '04 / Equipo',
     title: 'Amigos e invitaciones',
-    body: 'Agrega amigos, invítalos a tu sala con un toque y entrena en manada. Las salas también se comparten con un código de 6 caracteres.',
+    body: 'Arma tu grupo y entrena en manada.',
+    bullets: ['Solicitudes de amistad', 'Invita a tu sala a un toque', 'O comparte un código de 6'],
   },
+]
+
+// Capability metrics — every number is verifiable from the real architecture,
+// so it holds up under questioning (defensible in a defense), unlike a fake
+// user count. Presented Strava-style as a big-number social-proof band.
+const STATS = [
+  { num: '6',    label: 'Microservicios independientes' },
+  { num: '<1s',  label: 'Ranking recalculado (p99)' },
+  { num: '100%', label: 'En tiempo real vía WebSocket' },
+  { num: 'P2P',  label: 'Audio directo entre atletas' },
 ]
 
 const TICKER_ITEMS = [
@@ -95,6 +109,10 @@ export default function Landing() {
               <span className="rf-rank-bar"><i style={{ width: r.width }} /></span>
             </div>
           ))}
+          <div className="rf-rank-foot">
+            <span className="rf-rank-badge">🔥 Racha 12 días</span>
+            <span className="rf-rank-level">Nivel 8 · líder de la manada</span>
+          </div>
         </aside>
       </header>
 
@@ -106,15 +124,28 @@ export default function Landing() {
         </div>
       </div>
 
+      <section className="rf-stats" aria-label="RaceFlow en números">
+        {STATS.map(s => (
+          <div key={s.label} className="rf-stat">
+            <span className="rf-stat-num">{s.num}</span>
+            <span className="rf-stat-label">{s.label}</span>
+          </div>
+        ))}
+      </section>
+
       <section className="rf-features">
         <span className="rf-section-tag">Qué hace RaceFlow</span>
         <h2>Todo tu equipo, un solo pulso</h2>
-        <div className="rf-feature-grid">
+        <p className="rf-features-hint" aria-hidden="true">Desliza para ver las 4 →</p>
+        <div className="rf-feature-track">
           {FEATURES.map(f => (
             <article key={f.num} className="rf-feature">
               <span className="rf-feature-num">{f.num}</span>
               <h3>{f.title}</h3>
               <p>{f.body}</p>
+              <ul className="rf-feature-bullets">
+                {f.bullets.map(b => <li key={b}>{b}</li>)}
+              </ul>
             </article>
           ))}
         </div>
