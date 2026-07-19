@@ -1,4 +1,5 @@
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import Landing from './pages/Landing'
 import Login   from './pages/Login'
 import Salas   from './pages/Salas'
 import Amigos  from './pages/Amigos'
@@ -9,7 +10,7 @@ export default function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/"              element={<Navigate to="/login" replace />} />
+        <Route path="/"              element={<Landing />} />
         <Route path="/login"         element={<Login />} />
         <Route path="/salas"         element={<Salas />} />
         <Route path="/amigos"        element={<Amigos />} />
