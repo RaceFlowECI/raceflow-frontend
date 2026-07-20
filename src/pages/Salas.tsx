@@ -101,24 +101,24 @@ export default function Salas() {
       {/* Header */}
       <div style={{
         padding: '16px 20px 14px',
-        borderBottom: '1px solid #F1F5F9',
+        borderBottom: '1px solid var(--line)',
         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-        background: '#fff', position: 'sticky', top: 0, zIndex: 10,
+        background: 'var(--panel)', position: 'sticky', top: 0, zIndex: 10,
       }}>
-        <h1 style={{ fontSize: 22, fontWeight: 800, color: '#0A1628', flex: 1 }}>Salas</h1>
+        <h1 style={{ fontSize: 22, fontWeight: 800, color: 'var(--paper)', flex: 1 }}>Salas</h1>
         <button
           type="button"
           onClick={() => nav('/amigos')}
           style={{
-            padding: '9px 14px', background: '#F0FDFB', color: '#0A9088',
-            border: '2px solid #17C3B2', borderRadius: 10, fontSize: 13, fontWeight: 700,
+            padding: '9px 14px', background: 'rgba(22,214,190,0.12)', color: 'var(--teal)',
+            border: '2px solid var(--teal)', borderRadius: 10, fontSize: 13, fontWeight: 700,
             marginRight: 10,
           }}
         >👥 Amigos</button>
         <div style={{
-          width: 38, height: 38, background: '#17C3B2', borderRadius: 50,
+          width: 38, height: 38, background: 'var(--teal)', borderRadius: 50,
           display: 'flex', alignItems: 'center', justifyContent: 'center',
-          color: '#fff', fontWeight: 700, fontSize: 14,
+          color: 'var(--paper)', fontWeight: 700, fontSize: 14,
         }}>{userInitials}</div>
       </div>
 
@@ -127,26 +127,26 @@ export default function Salas() {
         {/* Invitations */}
         {invitations.length > 0 && (
           <div style={{
-            background: '#F0FDFB', borderRadius: 16, padding: 16,
-            border: '2px solid #17C3B2', marginBottom: 16,
+            background: 'rgba(22,214,190,0.12)', borderRadius: 16, padding: 16,
+            border: '2px solid var(--teal)', marginBottom: 16,
           }}>
-            <p style={{ fontSize: 14, fontWeight: 700, color: '#0A9088', marginBottom: 10 }}>
+            <p style={{ fontSize: 14, fontWeight: 700, color: 'var(--teal)', marginBottom: 10 }}>
               📩 Invitaciones ({invitations.length})
             </p>
             {invitations.map(inv => (
               <div key={inv.roomCode} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 0' }}>
                 <div style={{ flex: 1, minWidth: 0 }}>
-                  <p style={{ fontSize: 13, fontWeight: 600, color: '#0A1628' }}>
+                  <p style={{ fontSize: 13, fontWeight: 600, color: 'var(--paper)' }}>
                     {inv.fromName} te invitó a su sala
                   </p>
-                  <p style={{ fontSize: 11, color: '#94A3B8' }}>Sala {inv.roomCode}</p>
+                  <p style={{ fontSize: 11, color: 'var(--paper-dim)' }}>Sala {inv.roomCode}</p>
                 </div>
                 <button type="button" onClick={() => acceptInvitation(inv)} disabled={busy} style={{
-                  padding: '8px 14px', background: '#17C3B2', color: '#fff',
+                  padding: '8px 14px', background: 'var(--teal)', color: 'var(--paper)',
                   border: 'none', borderRadius: 9, fontSize: 12, fontWeight: 700,
                 }}>Unirse</button>
                 <button type="button" onClick={() => dismissInvitation(inv)} style={{
-                  padding: '8px 12px', background: '#F1F5F9', color: '#64748B',
+                  padding: '8px 12px', background: 'var(--panel-2)', color: 'var(--paper-dim)',
                   border: 'none', borderRadius: 9, fontSize: 12, fontWeight: 700,
                 }}>✕</button>
               </div>
@@ -156,14 +156,14 @@ export default function Salas() {
 
         {/* Join by code */}
         <div style={{
-          background: '#fff', borderRadius: 16, padding: '20px',
-          border: '1px solid #F1F5F9', boxShadow: '0 2px 12px rgba(0,0,0,0.05)',
+          background: 'var(--panel)', borderRadius: 16, padding: '20px',
+          border: '1px solid var(--line)', boxShadow: '0 2px 12px rgba(0,0,0,0.05)',
           marginBottom: 16,
         }}>
-          <h2 style={{ fontSize: 16, fontWeight: 700, color: '#0A1628', marginBottom: 4 }}>
+          <h2 style={{ fontSize: 16, fontWeight: 700, color: 'var(--paper)', marginBottom: 4 }}>
             ¿Tienes un código?
           </h2>
-          <p style={{ fontSize: 12, color: '#94A3B8', marginBottom: 16 }}>
+          <p style={{ fontSize: 12, color: 'var(--paper-dim)', marginBottom: 16 }}>
             Opción manual — la forma principal de entrar es por invitación de un amigo
           </p>
 
@@ -181,9 +181,9 @@ export default function Salas() {
                   // width so the 6 boxes fit on narrow (mobile) screens
                   flex: 1, minWidth: 0, width: '100%', boxSizing: 'border-box',
                   height: 48, textAlign: 'center',
-                  border: c ? '2px solid #17C3B2' : '2px solid #E2E8F0',
+                  border: c ? '2px solid var(--teal)' : '2px solid var(--line)',
                   borderRadius: 10, fontSize: 18, fontWeight: 700,
-                  color: '#0A1628', background: c ? '#F0FDFB' : '#F8FAFC',
+                  color: 'var(--paper)', background: c ? 'rgba(22,214,190,0.12)' : 'var(--panel-2)',
                   outline: 'none', transition: 'border-color 0.15s',
                   textTransform: 'uppercase',
                 }}
@@ -202,9 +202,9 @@ export default function Salas() {
           </button>
 
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, margin: '14px 0' }}>
-            <div style={{ flex: 1, height: 1, background: '#E2E8F0' }} />
-            <span style={{ fontSize: 12, color: '#94A3B8' }}>o crear una nueva sala</span>
-            <div style={{ flex: 1, height: 1, background: '#E2E8F0' }} />
+            <div style={{ flex: 1, height: 1, background: 'var(--line)' }} />
+            <span style={{ fontSize: 12, color: 'var(--paper-dim)' }}>o crear una nueva sala</span>
+            <div style={{ flex: 1, height: 1, background: 'var(--line)' }} />
           </div>
 
           <button type="button" data-testid="create-room" className="btn-dark" onClick={handleCreate} disabled={busy}>
@@ -212,17 +212,17 @@ export default function Salas() {
           </button>
 
           {error && (
-            <p data-testid="rooms-error" style={{ fontSize: 12, color: '#EF4444', fontWeight: 600, marginTop: 10 }}>{error}</p>
+            <p data-testid="rooms-error" style={{ fontSize: 12, color: 'var(--danger)', fontWeight: 600, marginTop: 10 }}>{error}</p>
           )}
         </div>
 
       </div>
 
       <div style={{
-        padding: '10px 20px', borderTop: '1px solid #F1F5F9',
-        background: '#fff', position: 'sticky', bottom: 0,
+        padding: '10px 20px', borderTop: '1px solid var(--line)',
+        background: 'var(--panel)', position: 'sticky', bottom: 0,
       }}>
-        <p style={{ fontSize: 11, color: '#CBD5E1', textAlign: 'center' }}>
+        <p style={{ fontSize: 11, color: 'var(--paper-dim)', textAlign: 'center' }}>
           Room Service · REST · #GET #createRoom #joinRoom
         </p>
       </div>
