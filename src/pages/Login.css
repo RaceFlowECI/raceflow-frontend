@@ -1,0 +1,134 @@
+@import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700;12..96,800&family=Hanken+Grotesk:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap');
+
+/* ============================================================
+   RaceFlow Login — glassmorphism over a live-route night scene.
+   On-brand with the landing (teal/coral · near-black green ·
+   self-drawing GPS trace). Scoped under .rfl.
+   ============================================================ */
+
+.rfl {
+  --ink:      #090C0A;
+  --panel:    #121A15;
+  --paper:    #ECEAE1;
+  --paper-dim: rgba(236, 234, 225, 0.55);
+  --teal:     #16D6BE;
+  --heat:     #FF5B33;
+  --glass:    rgba(236, 234, 225, 0.06);
+  --glass-line: rgba(236, 234, 225, 0.14);
+  --display: 'Bricolage Grotesque', sans-serif;
+  --body:    'Hanken Grotesk', sans-serif;
+  --mono:    'Space Mono', monospace;
+
+  position: relative;
+  min-height: 100dvh;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  padding: 40px 20px;
+  font-family: var(--body);
+  color: var(--paper);
+  background: var(--ink);
+  overflow: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+.rfl ::selection { background: var(--heat); color: var(--ink); }
+
+/* ---------- Scene behind the glass ---------- */
+.rfl-scene { position: absolute; inset: 0; z-index: 0; pointer-events: none;
+  background:
+    radial-gradient(60% 50% at 82% 8%,  rgba(22,214,190,0.16), transparent 60%),
+    radial-gradient(55% 45% at 10% 100%, rgba(255,91,51,0.12), transparent 60%),
+    var(--ink);
+}
+.rfl-scene svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+.rfl-contour { fill: none; stroke: rgba(236,234,225,0.09); stroke-width: 1; }
+.rfl-route {
+  fill: none; stroke: var(--teal); stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round;
+  opacity: 0.55; filter: drop-shadow(0 0 6px rgba(22,214,190,0.45));
+  stroke-dasharray: 1600; stroke-dashoffset: 1600;
+  animation: rfl-draw 4s .3s cubic-bezier(.6,.05,.2,1) forwards;
+}
+@keyframes rfl-draw { to { stroke-dashoffset: 0; } }
+.rfl-head { fill: var(--heat); }
+.rfl-head-ring { fill: none; stroke: var(--heat); stroke-width: 2; animation: rfl-pulse 1.9s ease-out infinite; }
+@keyframes rfl-pulse { 0% { r: 5; opacity: .9; } 100% { r: 20; opacity: 0; } }
+.rfl-grain { position: absolute; inset: 0; z-index: 1; pointer-events: none; opacity: 0.4; mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E"); }
+
+/* ---------- Brand ---------- */
+.rfl-brand { position: relative; z-index: 2; text-align: center; margin-bottom: 26px;
+  opacity: 0; animation: rfl-up .7s .1s cubic-bezier(.2,.7,.2,1) forwards; }
+.rfl-brand img { width: 60px; height: 60px; border-radius: 15px; display: block; margin: 0 auto 12px;
+  box-shadow: 0 10px 30px rgba(0,0,0,.5); }
+.rfl-brand h1 { font-family: var(--display); font-weight: 800; font-size: 30px; letter-spacing: -0.03em; margin: 0; }
+.rfl-brand h1 b { color: var(--teal); }
+.rfl-brand p { font-family: var(--mono); font-size: 11px; letter-spacing: 0.06em; color: var(--paper-dim); margin: 8px 0 0; }
+
+/* ---------- Glass card ---------- */
+.rfl-card {
+  position: relative; z-index: 2; width: 100%; max-width: 400px;
+  background: var(--glass);
+  backdrop-filter: blur(24px) saturate(140%);
+  -webkit-backdrop-filter: blur(24px) saturate(140%);
+  border: 1px solid var(--glass-line);
+  border-radius: 20px;
+  padding: 30px 28px;
+  box-shadow: 0 30px 80px rgba(0,0,0,.55), inset 0 1px 0 rgba(255,255,255,.08);
+  opacity: 0; animation: rfl-up .8s .22s cubic-bezier(.2,.7,.2,1) forwards;
+}
+.rfl-card::before { /* top sheen */
+  content: ''; position: absolute; inset: 0; border-radius: 20px; pointer-events: none;
+  background: linear-gradient(160deg, rgba(255,255,255,.10), transparent 38%);
+}
+@keyframes rfl-up { from { opacity: 0; transform: translateY(22px); } to { opacity: 1; transform: translateY(0); } }
+
+.rfl-h2 { font-family: var(--display); font-weight: 700; font-size: 23px; letter-spacing: -0.02em; margin: 0; }
+.rfl-sub { font-size: 13px; color: var(--paper-dim); margin: 6px 0 24px; font-weight: 300; }
+
+.rfl-form { display: flex; flex-direction: column; gap: 15px; }
+.rfl-field label {
+  display: block; font-family: var(--mono); font-size: 10px; font-weight: 700;
+  letter-spacing: 0.12em; text-transform: uppercase; color: var(--paper-dim); margin-bottom: 7px;
+}
+.rfl-field input {
+  width: 100%; box-sizing: border-box; padding: 13px 15px;
+  background: rgba(9,12,10,0.35);
+  border: 1px solid var(--glass-line); border-radius: 11px;
+  font-family: var(--body); font-size: 14px; color: var(--paper); outline: none;
+  transition: border-color .2s, box-shadow .2s, background .2s;
+}
+.rfl-field input::placeholder { color: rgba(236,234,225,0.34); }
+.rfl-field input:focus { border-color: var(--teal); box-shadow: 0 0 0 3px rgba(22,214,190,.14); background: rgba(9,12,10,0.5); }
+
+.rfl-label-row { display: flex; justify-content: space-between; align-items: center; }
+.rfl-forgot { font-family: var(--mono); font-size: 10px; color: var(--teal); cursor: pointer; letter-spacing: 0.04em; }
+.rfl-hint { font-size: 11px; color: var(--paper-dim); margin: 8px 0 0; line-height: 1.45; }
+.rfl-error { font-size: 12.5px; color: #FF8A6B; font-weight: 500; margin: 0; line-height: 1.4; }
+
+.rfl-submit {
+  margin-top: 6px; width: 100%; padding: 14px;
+  font-family: var(--mono); font-size: 13px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--ink); background: var(--teal); border: none; border-radius: 11px; cursor: pointer;
+  transition: transform .16s, box-shadow .16s, opacity .16s;
+}
+.rfl-submit:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 14px 40px rgba(22,214,190,.4); }
+.rfl-submit:disabled { opacity: .6; cursor: default; }
+
+.rfl-div { display: flex; align-items: center; gap: 12px; margin: 22px 0; }
+.rfl-div span { flex: 1; height: 1px; background: var(--glass-line); }
+.rfl-div em { font-family: var(--mono); font-size: 11px; color: var(--paper-dim); font-style: normal; }
+
+.rfl-toggle {
+  width: 100%; padding: 13px; background: transparent;
+  border: 1px solid var(--glass-line); border-radius: 11px;
+  font-family: var(--body); font-size: 14px; font-weight: 500; color: var(--paper); cursor: pointer;
+  transition: border-color .2s, color .2s;
+}
+.rfl-toggle:hover { border-color: var(--heat); color: var(--heat); }
+
+.rfl-foot { position: relative; z-index: 2; margin-top: 26px; font-family: var(--mono);
+  font-size: 10px; letter-spacing: 0.06em; color: rgba(236,234,225,0.3); text-align: center; }
+
+@media (prefers-reduced-motion: reduce) {
+  .rfl *, .rfl *::before { animation-duration: .01ms !important; animation-iteration-count: 1 !important; }
+  .rfl-route { stroke-dashoffset: 0 !important; }
+  .rfl-brand, .rfl-card { opacity: 1 !important; }
+}

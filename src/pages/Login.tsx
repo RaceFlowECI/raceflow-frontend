@@ -1,6 +1,10 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { login, register, saveToken } from '../api/auth'
+import './Login.css'
+
+// Hand-drawn "recorded route" behind the glass (viewBox 0 0 400 400).
+const ROUTE = 'M30,320 C70,270 60,210 120,190 S200,220 220,160 S270,90 320,120 S380,190 350,250'
 
 // Mirrors the backend's @Pattern on RegisterRequest.password (auth-service):
 // 8+ chars, at least one lowercase, one uppercase, one digit, one special char.
@@ -75,50 +79,45 @@ export default function Login() {
   }
 
   return (
-    <div style={{
-      minHeight: '100dvh',
-      background: 'linear-gradient(160deg, #071020 0%, #0A1628 40%, #1A2B4A 100%)',
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-      justifyContent: 'center',
-      padding: '24px 20px',
-    }}>
+    <div className="rfl">
+      {/* Scene: contour mesh + self-drawing GPS route behind the glass */}
+      <div className="rfl-scene" aria-hidden="true">
+        <svg viewBox="0 0 1200 800" preserveAspectRatio="xMidYMid slice">
+          {[180, 320, 460, 600].map(y => (
+            <path key={`c-${y}`} className="rfl-contour"
+              d={`M-40,${y} C280,${y - 80} 560,${y + 70} 820,${y - 20} S1160,${y + 60} 1260,${y - 30}`} />
+          ))}
+        </svg>
+        <svg viewBox="0 0 400 400" preserveAspectRatio="xMidYMid slice">
+          <path className="rfl-route" d={ROUTE} />
+          <circle className="rfl-head-ring" cx="350" cy="250" r="5" />
+          <circle className="rfl-head" cx="350" cy="250" r="5" />
+        </svg>
+      </div>
+      <div className="rfl-grain" aria-hidden="true" />
+
       {/* Brand */}
-      <div style={{ textAlign: 'center', marginBottom: 36 }}>
-        <img
-          src="/logo.png"
-          alt="RaceFlow"
-          style={{ width: 110, height: 110, borderRadius: 24, margin: '0 auto 14px', display: 'block' }}
-        />
-        <h1 style={{ color: '#fff', fontSize: 28, fontWeight: 800, letterSpacing: '-0.5px' }}>RaceFlow</h1>
-        <p style={{ color: 'rgba(255,255,255,0.55)', fontSize: 13, marginTop: 4 }}>
-          Entrenamiento deportivo colaborativo en tiempo real
-        </p>
+      <div className="rfl-brand">
+        <img src="/logo.png" alt="RaceFlow" />
+        <h1>RACE<b>FLOW</b></h1>
+        <p>04.6097°N · 74.0817°W · entrena en manada</p>
       </div>
 
-      {/* Card */}
-      <div style={{
-        width: '100%', maxWidth: 390,
-        background: '#fff', borderRadius: 20,
-        padding: '28px 24px', boxShadow: '0 24px 60px rgba(0,0,0,0.4)',
-      }}>
-        <h2 style={{ fontSize: 20, fontWeight: 700, color: '#0A1628', marginBottom: 4 }}>
-          {mode === 'login' ? 'Bienvenido de nuevo' : 'Crear cuenta nueva'}
-        </h2>
-        <p style={{ fontSize: 13, color: '#64748B', marginBottom: 24 }}>
+      {/* Glass card */}
+      <div className="rfl-card">
+        <h2 className="rfl-h2">{mode === 'login' ? 'Bienvenido de nuevo' : 'Crear cuenta nueva'}</h2>
+        <p className="rfl-sub">
           {mode === 'login'
             ? 'Inicia sesión para entrenar con tu equipo'
             : 'Regístrate para empezar a entrenar'}
         </p>
 
-        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+        <form onSubmit={handleSubmit} className="rfl-form">
           {mode === 'register' && (
-            <div>
-              <label style={labelStyle}>NOMBRE COMPLETO</label>
+            <div className="rfl-field">
+              <label>Nombre completo</label>
               <input
                 data-testid="register-name"
-                style={inputStyle}
                 type="text"
                 placeholder="Juan Sebastián"
                 value={name}
@@ -127,15 +126,12 @@ export default function Login() {
             </div>
           )}
 
-          {error && (
-            <p style={{ fontSize: 12, color: '#EF4444', fontWeight: 600 }}>{error}</p>
-          )}
+          {error && <p className="rfl-error">{error}</p>}
 
-          <div>
-            <label style={labelStyle}>CORREO ELECTRÓNICO</label>
+          <div className="rfl-field">
+            <label>Correo electrónico</label>
             <input
               data-testid="login-email"
-              style={inputStyle}
               type="email"
               placeholder="atleta@ejemplo.com"
               value={email}
@@ -143,70 +139,44 @@ export default function Login() {
             />
           </div>
 
-          <div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
-              <label style={{ ...labelStyle, margin: 0 }}>CONTRASEÑA</label>
-              {mode === 'login' && (
-                <span style={{ fontSize: 12, color: '#17C3B2', cursor: 'pointer' }}>
-                  ¿Olvidaste tu contraseña?
-                </span>
-              )}
+          <div className="rfl-field">
+            <div className="rfl-label-row">
+              <label>Contraseña</label>
+              {mode === 'login' && <span className="rfl-forgot">¿Olvidaste tu contraseña?</span>}
             </div>
             <input
               data-testid="login-password"
-              style={inputStyle}
               type="password"
               placeholder="••••••••"
               value={password}
               onChange={e => setPass(e.target.value)}
             />
             {mode === 'register' && (
-              <p style={{ fontSize: 11, color: '#94A3B8', marginTop: 6, lineHeight: 1.4 }}>
+              <p className="rfl-hint">
                 Mínimo 8 caracteres, con mayúscula, minúscula, número y carácter especial.
                 No puede ser igual a tu correo.
               </p>
             )}
           </div>
 
-          <button data-testid="auth-submit" type="submit" className="btn-primary" style={{ marginTop: 6 }} disabled={loading}>
-            {loading ? 'Cargando...' : mode === 'login' ? 'Iniciar sesión' : 'Crear cuenta'}
+          <button data-testid="auth-submit" type="submit" className="rfl-submit" disabled={loading}>
+            {loading ? 'Cargando…' : mode === 'login' ? 'Iniciar sesión' : 'Crear cuenta'}
           </button>
         </form>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12, margin: '20px 0' }}>
-          <div style={{ flex: 1, height: 1, background: '#E2E8F0' }} />
-          <span style={{ fontSize: 12, color: '#94A3B8' }}>o</span>
-          <div style={{ flex: 1, height: 1, background: '#E2E8F0' }} />
-        </div>
+        <div className="rfl-div"><span /><em>o</em><span /></div>
 
         <button
           type="button"
           data-testid="auth-toggle-mode"
+          className="rfl-toggle"
           onClick={() => setMode(mode === 'login' ? 'register' : 'login')}
-          style={{
-            width: '100%', padding: '13px', background: 'transparent',
-            border: '1.5px solid #E2E8F0', borderRadius: 12,
-            fontSize: 14, fontWeight: 600, color: '#1E293B', cursor: 'pointer',
-          }}
         >
           {mode === 'login' ? 'Crear cuenta nueva' : 'Ya tengo cuenta — Iniciar sesión'}
         </button>
       </div>
 
-      <p style={{ color: 'rgba(255,255,255,0.25)', fontSize: 11, marginTop: 28, textAlign: 'center' }}>
-        Auth Service · REST technology · #GET #authenticate
-      </p>
+      <p className="rfl-foot">AUTH SERVICE · REST · #authenticate</p>
     </div>
   )
-}
-
-const labelStyle: React.CSSProperties = {
-  display: 'block', fontSize: 11, fontWeight: 700,
-  color: '#94A3B8', letterSpacing: '0.08em', marginBottom: 6,
-}
-const inputStyle: React.CSSProperties = {
-  width: '100%', padding: '12px 14px',
-  border: '1.5px solid #E2E8F0', borderRadius: 10,
-  fontSize: 14, color: '#1E293B', outline: 'none',
-  background: '#F8FAFC', transition: 'border-color 0.2s',
 }
