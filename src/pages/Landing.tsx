@@ -41,12 +41,12 @@ const GAUGES = [
 ]
 
 const SPLITS = [
-  <><em>▲2</em> Ana toma la delantera</>,
-  <>Sala <em>K7X2M9</em> · 4 atletas</>,
-  <>Ranking recalculado en <em>212ms</em></>,
-  <><span className="h">+1</span> Diego se unió a la sala</>,
-  <>Chat de voz · <em>3</em> en llamada</>,
-  <>Traza GPS <em>4.812°N 74.081°W</em></>,
+  { id: 'lead',  content: <><em>▲2</em> Ana toma la delantera</> },
+  { id: 'room',  content: <>Sala <em>K7X2M9</em> · 4 atletas</> },
+  { id: 'recalc', content: <>Ranking recalculado en <em>212ms</em></> },
+  { id: 'join',  content: <><span className="h">+1</span> Diego se unió a la sala</> },
+  { id: 'voice', content: <>Chat de voz · <em>3</em> en llamada</> },
+  { id: 'gps',   content: <>Traza GPS <em>4.812°N 74.081°W</em></> },
 ]
 
 // A hand-drawn "recorded route" for the hero map (viewBox 0 0 400 400).
@@ -58,8 +58,8 @@ export default function Landing() {
     <div className="rf">
       <div className="rf-atmos" aria-hidden="true">
         <svg viewBox="0 0 1200 800" preserveAspectRatio="xMidYMid slice">
-          {[160, 280, 400, 520, 640].map((y, i) => (
-            <path key={i} className="rf-contour"
+          {[160, 280, 400, 520, 640].map(y => (
+            <path key={`contour-${y}`} className="rf-contour"
               d={`M-40,${y} C260,${y - 70} 520,${y + 70} 760,${y - 20} S1120,${y + 60} 1260,${y - 30}`} />
           ))}
         </svg>
@@ -116,7 +116,7 @@ export default function Landing() {
               <path className="rf-route-ghost" d={ROUTE} />
               <path className="rf-route" d={ROUTE} />
               {WAYPOINTS.map(([x, y], i) => (
-                <circle key={i} className="rf-wp" cx={x} cy={y} r="5"
+                <circle key={`wp-${x}-${y}`} className="rf-wp" cx={x} cy={y} r="5"
                   style={{ animationDelay: `${1 + i * 0.55}s` }} />
               ))}
               <circle className="rf-head-ring" cx="250" cy="280" r="6" />
@@ -140,8 +140,8 @@ export default function Landing() {
         {/* SPLIT FEED */}
         <div className="rf-splits" aria-hidden="true">
           <div className="rf-splits-track">
-            {SPLITS.map((s, i) => <span key={i}>{s}</span>)}
-            {SPLITS.map((s, i) => <span key={`d${i}`}>{s}</span>)}
+            {SPLITS.map(s => <span key={s.id}>{s.content}</span>)}
+            {SPLITS.map(s => <span key={`dup-${s.id}`}>{s.content}</span>)}
           </div>
         </div>
 
