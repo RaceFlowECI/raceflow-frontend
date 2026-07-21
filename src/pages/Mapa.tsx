@@ -11,7 +11,7 @@ import { useGeolocation } from '../hooks/useGeolocation'
 const FALLBACK_CENTER: [number, number] = [4.6097, -74.0817] // Bogotá city center
 const FALLBACK_ZOOM = 12
 const LOCATED_ZOOM = 16
-const SELF_COLOR = '#17C3B2'
+const SELF_COLOR = '#16D6BE'
 const RANK_COLORS = ['#FFD700', '#C0C0C0', '#CD7F32'] // oro, plata, bronce
 const DEFAULT_COLOR = '#3B82F6'
 
@@ -164,20 +164,20 @@ export default function Mapa() {
   }, [ranking, selfEmail])
 
   return (
-    <div className="shell" style={{ background: '#fff' }}>
+    <div className="shell" style={{ background: 'var(--panel)' }}>
       {/* Header */}
       <div style={{
         padding: '14px 16px',
-        background: '#0A1628',
+        background: 'var(--ink-2)',
         display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0,
       }}>
         <button
           type="button"
           onClick={() => nav('/salas')}
-          style={{ background: 'none', color: '#fff', fontSize: 20, padding: 4 }}
+          style={{ background: 'none', color: 'var(--paper)', fontSize: 20, padding: 4 }}
         >←</button>
         <div style={{ flex: 1 }}>
-          <p style={{ color: '#fff', fontWeight: 700, fontSize: 15 }}>
+          <p style={{ color: 'var(--paper)', fontWeight: 700, fontSize: 15 }}>
             Sala {roomCode}
           </p>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 2 }}>
@@ -189,7 +189,7 @@ export default function Mapa() {
           type="button"
           onClick={() => nav(`/sala/${roomCode}/ranking`)}
           style={{
-            background: '#17C3B2', color: '#fff', borderRadius: 8,
+            background: 'var(--teal)', color: 'var(--paper)', borderRadius: 8,
             padding: '6px 12px', fontSize: 12, fontWeight: 600,
           }}
         >Ranking</button>
@@ -201,8 +201,8 @@ export default function Mapa() {
         {geoError && (
           <div style={{
             position: 'absolute', top: 10, left: 10, right: 10, zIndex: 1000,
-            background: '#FEF2F2', border: '1px solid #FCA5A5', borderRadius: 10,
-            padding: '8px 12px', fontSize: 12, color: '#B91C1C',
+            background: 'rgba(255,107,74,0.12)', border: '1px solid rgba(255,107,74,0.35)', borderRadius: 10,
+            padding: '8px 12px', fontSize: 12, color: 'var(--danger)',
           }}>
             No se pudo obtener tu ubicación ({geoError}). Habilita el permiso de GPS para transmitir tu posición.
           </div>
@@ -211,14 +211,14 @@ export default function Mapa() {
 
       {/* Mini ranking panel */}
       <div style={{
-        background: '#fff', borderTop: '1px solid #F1F5F9',
+        background: 'var(--panel)', borderTop: '1px solid var(--line)',
         padding: '12px 16px', flexShrink: 0,
       }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 10 }}>
-          <span style={{ fontSize: 13, fontWeight: 700, color: '#0A1628' }}>Ranking en vivo</span>
+          <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--paper)' }}>Ranking en vivo</span>
           <span
             onClick={() => nav(`/sala/${roomCode}/ranking`)}
-            style={{ fontSize: 12, color: '#17C3B2', fontWeight: 600, cursor: 'pointer' }}
+            style={{ fontSize: 12, color: 'var(--teal)', fontWeight: 600, cursor: 'pointer' }}
           >Ver completo →</span>
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 7 }}>
@@ -226,18 +226,18 @@ export default function Mapa() {
             const isSelf = a.email === selfEmail
             return (
               <div key={a.email} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                <span style={{ fontSize: 12, color: '#94A3B8', width: 16, textAlign: 'center' }}>
+                <span style={{ fontSize: 12, color: 'var(--paper-dim)', width: 16, textAlign: 'center' }}>
                   {a.rank}
                 </span>
                 <div style={{
                   width: 26, height: 26, borderRadius: 50, background: colorFor(a.rank, isSelf),
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  color: '#fff', fontSize: 9, fontWeight: 700,
+                  color: 'var(--paper)', fontSize: 9, fontWeight: 700,
                 }}>{initialsOf(a.name)}</div>
-                <span style={{ flex: 1, fontSize: 13, color: '#1E293B', fontWeight: a.rank === 1 ? 700 : 400 }}>
+                <span style={{ flex: 1, fontSize: 13, color: 'var(--paper)', fontWeight: a.rank === 1 ? 700 : 400 }}>
                   {isSelf ? `Tú (${a.name})` : a.name}
                 </span>
-                <span style={{ fontSize: 13, fontWeight: 600, color: a.rank === 1 ? '#17C3B2' : '#64748B' }}>
+                <span style={{ fontSize: 13, fontWeight: 600, color: a.rank === 1 ? 'var(--teal)' : 'var(--paper-dim)' }}>
                   {a.distanceKm.toFixed(2)} km
                 </span>
               </div>
@@ -246,8 +246,8 @@ export default function Mapa() {
         </div>
       </div>
 
-      <div style={{ padding: '8px', background: '#fff', borderTop: '1px solid #F1F5F9', flexShrink: 0 }}>
-        <p style={{ fontSize: 10, color: '#CBD5E1', textAlign: 'center' }}>
+      <div style={{ padding: '8px', background: 'var(--panel)', borderTop: '1px solid var(--line)', flexShrink: 0 }}>
+        <p style={{ fontSize: 10, color: 'var(--paper-dim)', textAlign: 'center' }}>
           Vite/React + Leaflet.js + WebSocket · RaceFlow Realtime Service
         </p>
       </div>

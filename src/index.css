@@ -1,27 +1,44 @@
+@import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700;12..96,800&family=Hanken+Grotesk:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap');
+
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
-  --navy:       #0A1628;
-  --navy-mid:   #1A2B4A;
-  --teal:       #17C3B2;
-  --teal-dark:  #12A89A;
-  --white:      #FFFFFF;
-  --light-bg:   #F8FAFC;
-  --card-bg:    #FFFFFF;
-  --text:       #1E293B;
-  --text-muted: #64748B;
-  --border:     #E2E8F0;
-  --success:    #22C55E;
-  --danger:     #EF4444;
-  --coral:      #FF6961;
-  --font:       'Inter', system-ui, -apple-system, sans-serif;
+  /* Unified "live-route" dark identity (matches landing + login) */
+  --ink:        #090C0A;   /* app base */
+  --ink-2:      #0E1310;   /* headers / raised base */
+  --panel:      #121A15;   /* cards */
+  --panel-2:    #172219;   /* nested cards / inputs */
+  --paper:      #ECEAE1;   /* primary text */
+  --paper-dim:  rgba(236, 234, 225, 0.55);
+  --paper-faint: rgba(236, 234, 225, 0.10);
+  --line:       rgba(236, 234, 225, 0.12);
+  --teal:       #16D6BE;   /* GPS / brand */
+  --teal-dark:  #0FB6A6;
+  --coral:      #FF5B33;   /* effort / accent */
+  --success:    #16D6BE;
+  --danger:     #FF6B4A;
+
+  /* Back-compat aliases (older inline styles referencing these shift too) */
+  --navy:       #0E1310;
+  --navy-mid:   #172219;
+  --white:      #ECEAE1;
+  --light-bg:   #090C0A;
+  --card-bg:    #121A15;
+  --text:       #ECEAE1;
+  --text-muted: rgba(236, 234, 225, 0.55);
+  --border:     rgba(236, 234, 225, 0.12);
+
+  --display:    'Bricolage Grotesque', sans-serif;
+  --font:       'Hanken Grotesk', system-ui, -apple-system, sans-serif;
+  --mono:       'Space Mono', monospace;
 }
 
 html, body, #root {
   height: 100%;
   font-family: var(--font);
   -webkit-font-smoothing: antialiased;
-  background: var(--light-bg);
+  background: var(--ink);
+  color: var(--paper);
 }
 
 /* Mobile shell — max 430px centered */
@@ -31,54 +48,65 @@ html, body, #root {
   margin: 0 auto;
   position: relative;
   overflow-x: hidden;
-  background: var(--white);
+  background: var(--ink);
+  color: var(--paper);
   display: flex;
   flex-direction: column;
 }
 
 button { cursor: pointer; font-family: var(--font); border: none; }
 input  { font-family: var(--font); }
+input::placeholder { color: rgba(236, 234, 225, 0.34); }
 
 .btn-primary {
   width: 100%;
   padding: 14px;
   background: var(--teal);
-  color: var(--white);
+  color: var(--ink);
   border-radius: 12px;
-  font-size: 15px;
-  font-weight: 600;
-  transition: background 0.2s;
+  font-family: var(--mono);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  transition: transform 0.16s, box-shadow 0.16s, background 0.2s;
 }
-.btn-primary:hover  { background: var(--teal-dark); }
-.btn-primary:active { opacity: 0.9; }
+.btn-primary:hover  { transform: translateY(-2px); box-shadow: 0 12px 34px rgba(22, 214, 190, 0.35); }
+.btn-primary:active { opacity: 0.9; transform: none; }
 
 .btn-dark {
   width: 100%;
   padding: 14px;
-  background: var(--navy-mid);
-  color: var(--white);
+  background: transparent;
+  color: var(--paper);
+  border: 1px solid var(--line);
   border-radius: 12px;
-  font-size: 15px;
-  font-weight: 600;
-  transition: background 0.2s;
+  font-family: var(--mono);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  transition: border-color 0.2s, color 0.2s;
 }
-.btn-dark:hover { background: var(--navy); }
+.btn-dark:hover { border-color: var(--coral); color: var(--coral); }
 
 .badge-live {
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  background: #DCFCE7;
-  color: #16A34A;
-  font-size: 11px;
+  background: rgba(255, 91, 51, 0.14);
+  color: var(--coral);
+  font-family: var(--mono);
+  font-size: 10px;
   font-weight: 700;
-  padding: 3px 8px;
+  letter-spacing: 0.08em;
+  padding: 3px 9px;
   border-radius: 20px;
 }
 .badge-live::before {
   content: '';
   width: 6px; height: 6px;
-  background: var(--success);
+  background: var(--coral);
   border-radius: 50%;
   animation: pulse 1.5s infinite;
 }

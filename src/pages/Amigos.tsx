@@ -56,25 +56,25 @@ export default function Amigos() {
   }
 
   return (
-    <div className="shell" style={{ background: '#F8FAFC' }}>
+    <div className="shell" style={{ background: 'var(--ink)' }}>
       {/* Header */}
       <div style={{
-        padding: '16px 20px 14px', borderBottom: '1px solid #F1F5F9',
+        padding: '16px 20px 14px', borderBottom: '1px solid var(--line)',
         display: 'flex', alignItems: 'center', gap: 10,
-        background: '#fff', position: 'sticky', top: 0, zIndex: 10,
+        background: 'var(--panel)', position: 'sticky', top: 0, zIndex: 10,
       }}>
         <button onClick={() => nav('/salas')} style={{ background: 'none', fontSize: 20, padding: 4 }}>←</button>
-        <h1 style={{ fontSize: 22, fontWeight: 800, color: '#0A1628', flex: 1 }}>Amigos</h1>
+        <h1 style={{ fontSize: 22, fontWeight: 800, color: 'var(--paper)', flex: 1 }}>Amigos</h1>
       </div>
 
       <div style={{ flex: 1, overflowY: 'auto', padding: '20px 20px 40px' }}>
 
         {/* Search */}
         <div style={{
-          background: '#fff', borderRadius: 16, padding: 16,
-          border: '1px solid #F1F5F9', marginBottom: 16,
+          background: 'var(--panel)', borderRadius: 16, padding: 16,
+          border: '1px solid var(--line)', marginBottom: 16,
         }}>
-          <p style={{ fontSize: 14, fontWeight: 700, color: '#0A1628', marginBottom: 10 }}>
+          <p style={{ fontSize: 14, fontWeight: 700, color: 'var(--paper)', marginBottom: 10 }}>
             Buscar atletas
           </p>
           <div style={{ display: 'flex', gap: 8 }}>
@@ -85,13 +85,13 @@ export default function Amigos() {
               placeholder="Nombre o correo"
               style={{
                 flex: 1, minWidth: 0, padding: '11px 12px', borderRadius: 10,
-                border: '2px solid #E2E8F0', fontSize: 14, outline: 'none',
+                border: '2px solid var(--line)', fontSize: 14, outline: 'none',
               }}
             />
             <button
               onClick={doSearch}
               style={{
-                padding: '11px 16px', background: '#17C3B2', color: '#fff',
+                padding: '11px 16px', background: 'var(--teal)', color: 'var(--paper)',
                 border: 'none', borderRadius: 10, fontWeight: 700, fontSize: 14,
               }}
             >Buscar</button>
@@ -103,49 +103,49 @@ export default function Amigos() {
               borderBottom: '1px solid #F8FAFC',
             }}>
               <div style={{
-                width: 34, height: 34, borderRadius: 50, background: '#0A1628', color: '#fff',
+                width: 34, height: 34, borderRadius: 50, background: 'var(--ink-2)', color: 'var(--paper)',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                 fontSize: 12, fontWeight: 700, flexShrink: 0,
               }}>{initialsOf(u.name)}</div>
               <div style={{ flex: 1, minWidth: 0 }}>
-                <p style={{ fontSize: 13, fontWeight: 600, color: '#0A1628' }}>{u.name}</p>
-                <p style={{ fontSize: 11, color: '#94A3B8', overflow: 'hidden', textOverflow: 'ellipsis' }}>{u.email}</p>
+                <p style={{ fontSize: 13, fontWeight: 600, color: 'var(--paper)' }}>{u.name}</p>
+                <p style={{ fontSize: 11, color: 'var(--paper-dim)', overflow: 'hidden', textOverflow: 'ellipsis' }}>{u.email}</p>
               </div>
               <button
                 onClick={() => request(u.email)}
                 style={{
-                  padding: '7px 12px', background: '#F0FDFB', color: '#0A9088',
-                  border: '2px solid #17C3B2', borderRadius: 9, fontSize: 12, fontWeight: 700,
+                  padding: '7px 12px', background: 'rgba(22,214,190,0.12)', color: 'var(--teal)',
+                  border: '2px solid var(--teal)', borderRadius: 9, fontSize: 12, fontWeight: 700,
                 }}
               >+ Agregar</button>
             </div>
           ))}
           {feedback && (
-            <p style={{ fontSize: 12, color: '#0A9088', fontWeight: 600, marginTop: 8 }}>{feedback}</p>
+            <p style={{ fontSize: 12, color: 'var(--teal)', fontWeight: 600, marginTop: 8 }}>{feedback}</p>
           )}
         </div>
 
         {/* Pending requests */}
         {pending.length > 0 && (
           <div style={{
-            background: '#FFFBEB', borderRadius: 16, padding: 16,
-            border: '1px solid #FDE68A', marginBottom: 16,
+            background: 'rgba(255,91,51,0.10)', borderRadius: 16, padding: 16,
+            border: '1px solid rgba(255,91,51,0.3)', marginBottom: 16,
           }}>
-            <p style={{ fontSize: 14, fontWeight: 700, color: '#92400E', marginBottom: 10 }}>
+            <p style={{ fontSize: 14, fontWeight: 700, color: 'var(--coral)', marginBottom: 10 }}>
               Solicitudes pendientes ({pending.length})
             </p>
             {pending.map(p => (
               <div key={p.id} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 0' }}>
                 <div style={{ flex: 1, minWidth: 0 }}>
-                  <p style={{ fontSize: 13, fontWeight: 600, color: '#0A1628' }}>{p.fromName}</p>
-                  <p style={{ fontSize: 11, color: '#94A3B8' }}>{p.fromEmail}</p>
+                  <p style={{ fontSize: 13, fontWeight: 600, color: 'var(--paper)' }}>{p.fromName}</p>
+                  <p style={{ fontSize: 11, color: 'var(--paper-dim)' }}>{p.fromEmail}</p>
                 </div>
                 <button onClick={() => answer(p.id, true)} style={{
-                  padding: '7px 12px', background: '#17C3B2', color: '#fff',
+                  padding: '7px 12px', background: 'var(--teal)', color: 'var(--paper)',
                   border: 'none', borderRadius: 9, fontSize: 12, fontWeight: 700,
                 }}>Aceptar</button>
                 <button onClick={() => answer(p.id, false)} style={{
-                  padding: '7px 12px', background: '#FEE2E2', color: '#B91C1C',
+                  padding: '7px 12px', background: 'rgba(255,107,74,0.16)', color: 'var(--danger)',
                   border: 'none', borderRadius: 9, fontSize: 12, fontWeight: 700,
                 }}>Rechazar</button>
               </div>
@@ -155,13 +155,13 @@ export default function Amigos() {
 
         {/* Friends list */}
         <div style={{
-          background: '#fff', borderRadius: 16, padding: 16, border: '1px solid #F1F5F9',
+          background: 'var(--panel)', borderRadius: 16, padding: 16, border: '1px solid var(--line)',
         }}>
-          <p style={{ fontSize: 14, fontWeight: 700, color: '#0A1628', marginBottom: 10 }}>
+          <p style={{ fontSize: 14, fontWeight: 700, color: 'var(--paper)', marginBottom: 10 }}>
             Mis amigos ({friends.length})
           </p>
           {friends.length === 0 && (
-            <p style={{ fontSize: 13, color: '#94A3B8' }}>
+            <p style={{ fontSize: 13, color: 'var(--paper-dim)' }}>
               Aún no tienes amigos — busca atletas arriba y envíales una solicitud.
             </p>
           )}
@@ -171,13 +171,13 @@ export default function Amigos() {
               borderBottom: '1px solid #F8FAFC',
             }}>
               <div style={{
-                width: 34, height: 34, borderRadius: 50, background: '#17C3B2', color: '#fff',
+                width: 34, height: 34, borderRadius: 50, background: 'var(--teal)', color: 'var(--paper)',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                 fontSize: 12, fontWeight: 700, flexShrink: 0,
               }}>{initialsOf(f.name)}</div>
               <div style={{ flex: 1, minWidth: 0 }}>
-                <p style={{ fontSize: 13, fontWeight: 600, color: '#0A1628' }}>{f.name}</p>
-                <p style={{ fontSize: 11, color: '#94A3B8' }}>{f.sport ?? f.email}</p>
+                <p style={{ fontSize: 13, fontWeight: 600, color: 'var(--paper)' }}>{f.name}</p>
+                <p style={{ fontSize: 11, color: 'var(--paper-dim)' }}>{f.sport ?? f.email}</p>
               </div>
             </div>
           ))}
