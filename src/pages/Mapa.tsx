@@ -172,6 +172,7 @@ export default function Mapa() {
         display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0,
       }}>
         <button
+          type="button"
           onClick={() => nav('/salas')}
           style={{ background: 'none', color: '#fff', fontSize: 20, padding: 4 }}
         >←</button>
@@ -185,6 +186,7 @@ export default function Mapa() {
           </div>
         </div>
         <button
+          type="button"
           onClick={() => nav(`/sala/${roomCode}/ranking`)}
           style={{
             background: '#17C3B2', color: '#fff', borderRadius: 8,
