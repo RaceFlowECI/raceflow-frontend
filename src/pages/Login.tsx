@@ -2,6 +2,33 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { login, register, saveToken } from '../api/auth'
 
+// Mirrors the backend's @Pattern on RegisterRequest.password (auth-service):
+// 8+ chars, at least one lowercase, one uppercase, one digit, one special char.
+const PASSWORD_POLICY_RE = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/
+// Mirrors the backend's @Email regexp: requires a real domain suffix.
+const EMAIL_FORMAT_RE = /^[^@\s]+@[^@\s]+\.[A-Za-z]{2,}$/
+
+function passwordMatchesEmail(password: string, email: string): boolean {
+  const p = password.trim().toLowerCase()
+  const e = email.trim().toLowerCase()
+  const local = e.includes('@') ? e.slice(0, e.indexOf('@')) : e
+  return p === e || p === local || (local.length >= 3 && p.includes(local))
+}
+
+/** Client-side mirror of the backend's registration rules, for instant feedback. */
+function validateRegistration(email: string, password: string): string | null {
+  if (!EMAIL_FORMAT_RE.test(email.trim())) {
+    return 'El correo debe tener un formato real (usuario@dominio.com)'
+  }
+  if (!PASSWORD_POLICY_RE.test(password)) {
+    return 'La contraseña debe tener mínimo 8 caracteres, con mayúscula, minúscula, número y carácter especial'
+  }
+  if (passwordMatchesEmail(password, email)) {
+    return 'La contraseña no puede ser igual a tu correo, ni contenerlo'
+  }
+  return null
+}
+
 export default function Login() {
   const nav = useNavigate()
   const [email, setEmail]     = useState('')
@@ -14,6 +41,15 @@ export default function Login() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError(null)
+
+    if (mode === 'register') {
+      const validationError = validateRegistration(email, password)
+      if (validationError) {
+        setError(validationError)
+        return
+      }
+    }
+
     setLoading(true)
     try {
       const auth = mode === 'login'
@@ -24,7 +60,12 @@ export default function Login() {
     } catch (err) {
       if (err instanceof Response) {
         const body = await err.json().catch(() => null)
-        setError(body?.error ?? `Error ${err.status}`)
+        // Backend validation failures (400) come back as { error, fields: [...] };
+        // surface the field-level messages instead of the generic "Validation failed".
+        const detail = Array.isArray(body?.fields) && body.fields.length > 0
+          ? body.fields.join(' · ')
+          : body?.error
+        setError(detail ?? `Error ${err.status}`)
       } else {
         setError('No se pudo conectar con el servidor')
       }
@@ -76,6 +117,7 @@ export default function Login() {
             <div>
               <label style={labelStyle}>NOMBRE COMPLETO</label>
               <input
+                data-testid="register-name"
                 style={inputStyle}
                 type="text"
                 placeholder="Juan Sebastián"
@@ -92,6 +134,7 @@ export default function Login() {
           <div>
             <label style={labelStyle}>CORREO ELECTRÓNICO</label>
             <input
+              data-testid="login-email"
               style={inputStyle}
               type="email"
               placeholder="atleta@ejemplo.com"
@@ -110,15 +153,22 @@ export default function Login() {
               )}
             </div>
             <input
+              data-testid="login-password"
               style={inputStyle}
               type="password"
               placeholder="••••••••"
               value={password}
               onChange={e => setPass(e.target.value)}
             />
+            {mode === 'register' && (
+              <p style={{ fontSize: 11, color: '#94A3B8', marginTop: 6, lineHeight: 1.4 }}>
+                Mínimo 8 caracteres, con mayúscula, minúscula, número y carácter especial.
+                No puede ser igual a tu correo.
+              </p>
+            )}
           </div>
 
-          <button type="submit" className="btn-primary" style={{ marginTop: 6 }} disabled={loading}>
+          <button data-testid="auth-submit" type="submit" className="btn-primary" style={{ marginTop: 6 }} disabled={loading}>
             {loading ? 'Cargando...' : mode === 'login' ? 'Iniciar sesión' : 'Crear cuenta'}
           </button>
         </form>
@@ -130,6 +180,8 @@ export default function Login() {
         </div>
 
         <button
+          type="button"
+          data-testid="auth-toggle-mode"
           onClick={() => setMode(mode === 'login' ? 'register' : 'login')}
           style={{
             width: '100%', padding: '13px', background: 'transparent',
