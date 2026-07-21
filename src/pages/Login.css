@@ -1,0 +1,146 @@
+@import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700;12..96,800&family=Hanken+Grotesk:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap');
+
+/* ============================================================
+   RaceFlow Login — glassmorphism + sliding login/register panels,
+   over a live-route night scene. On-brand with the landing.
+   Scoped under .rfl.
+   ============================================================ */
+
+.rfl {
+  --ink:      #090C0A;
+  --paper:    #ECEAE1;
+  --paper-dim: rgba(236, 234, 225, 0.55);
+  --teal:     #16D6BE;
+  --heat:     #FF5B33;
+  --glass:    rgba(236, 234, 225, 0.06);
+  --glass-line: rgba(236, 234, 225, 0.14);
+  --display: 'Bricolage Grotesque', sans-serif;
+  --body:    'Hanken Grotesk', sans-serif;
+  --mono:    'Space Mono', monospace;
+  --slide:   cubic-bezier(.7, 0, .2, 1);
+
+  position: relative; min-height: 100dvh;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  padding: 40px 20px; gap: 22px;
+  font-family: var(--body); color: var(--paper); background: var(--ink);
+  overflow: hidden; -webkit-font-smoothing: antialiased;
+}
+.rfl ::selection { background: var(--heat); color: var(--ink); }
+
+/* ---------- Scene behind the glass ---------- */
+.rfl-scene { position: absolute; inset: 0; z-index: 0; pointer-events: none;
+  background:
+    radial-gradient(60% 50% at 82% 8%,  rgba(22,214,190,0.16), transparent 60%),
+    radial-gradient(55% 45% at 10% 100%, rgba(255,91,51,0.12), transparent 60%),
+    var(--ink);
+}
+.rfl-scene svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+.rfl-contour { fill: none; stroke: rgba(236,234,225,0.09); stroke-width: 1; }
+.rfl-route { fill: none; stroke: var(--teal); stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round;
+  opacity: 0.5; filter: drop-shadow(0 0 6px rgba(22,214,190,0.45));
+  stroke-dasharray: 1600; stroke-dashoffset: 1600; animation: rfl-draw 4s .3s var(--slide) forwards; }
+@keyframes rfl-draw { to { stroke-dashoffset: 0; } }
+.rfl-head { fill: var(--heat); }
+.rfl-head-ring { fill: none; stroke: var(--heat); stroke-width: 2; animation: rfl-pulse 1.9s ease-out infinite; }
+@keyframes rfl-pulse { 0% { r: 5; opacity: .9; } 100% { r: 20; opacity: 0; } }
+.rfl-grain { position: absolute; inset: 0; z-index: 1; pointer-events: none; opacity: 0.4; mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E"); }
+
+/* ---------- Brand ---------- */
+.rfl-brand { position: relative; z-index: 2; display: flex; align-items: center; gap: 12px;
+  opacity: 0; animation: rfl-up .7s .1s var(--slide) forwards; }
+.rfl-brand img { width: 40px; height: 40px; border-radius: 11px; box-shadow: 0 8px 24px rgba(0,0,0,.5); }
+.rfl-brand h1 { font-family: var(--display); font-weight: 800; font-size: 22px; letter-spacing: -0.03em; margin: 0; }
+.rfl-brand h1 b { color: var(--teal); }
+@keyframes rfl-up { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+/* ---------- Auth card: two sliding panels ---------- */
+.rfl-auth {
+  position: relative; z-index: 2; width: 100%; max-width: 760px; min-height: 480px;
+  border-radius: 22px; overflow: hidden;
+  background: var(--glass);
+  backdrop-filter: blur(24px) saturate(140%); -webkit-backdrop-filter: blur(24px) saturate(140%);
+  border: 1px solid var(--glass-line);
+  box-shadow: 0 40px 90px rgba(0,0,0,.55), inset 0 1px 0 rgba(255,255,255,.08);
+  opacity: 0; animation: rfl-up .8s .22s var(--slide) forwards;
+}
+
+/* Form column — left half; slides to the right half in register mode */
+.rfl-formcol {
+  position: absolute; top: 0; left: 0; width: 50%; height: 100%;
+  display: flex; align-items: center; justify-content: center; padding: 40px 38px;
+  transition: transform .7s var(--slide);
+}
+.rfl-auth[data-mode="register"] .rfl-formcol { transform: translateX(100%); }
+
+/* Branded aside — right half; slides to the left half in register mode */
+.rfl-aside {
+  position: absolute; top: 0; right: 0; width: 50%; height: 100%;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  text-align: center; padding: 40px 36px; color: var(--ink);
+  background:
+    radial-gradient(120% 90% at 100% 0%, rgba(255,255,255,.18), transparent 55%),
+    linear-gradient(150deg, var(--teal) 0%, #0FB6A6 42%, var(--heat) 130%);
+  transition: transform .7s var(--slide);
+}
+.rfl-auth[data-mode="register"] .rfl-aside { transform: translateX(-100%); }
+.rfl-aside::after { /* map grid texture on the panel */
+  content: ''; position: absolute; inset: 0; pointer-events: none; opacity: .18;
+  background-image: linear-gradient(rgba(9,12,10,.6) 1px, transparent 1px),
+                    linear-gradient(90deg, rgba(9,12,10,.6) 1px, transparent 1px);
+  background-size: 34px 34px;
+}
+.rfl-aside > * { position: relative; z-index: 1; }
+.rfl-aside h3 { font-family: var(--display); font-weight: 800; font-size: clamp(26px, 3vw, 34px); line-height: .98; letter-spacing: -0.03em; margin: 0; }
+.rfl-aside p { font-size: 13.5px; line-height: 1.55; margin: 16px 0 26px; max-width: 30ch; color: rgba(9,12,10,.82); font-weight: 400; }
+.rfl-ghost {
+  font-family: var(--mono); font-size: 12px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
+  padding: 13px 30px; border: 1.5px solid rgba(9,12,10,.55); border-radius: 3px; background: transparent;
+  color: var(--ink); cursor: pointer; transition: background .2s, color .2s;
+}
+.rfl-ghost:hover { background: var(--ink); color: var(--paper); }
+
+/* ---------- Form ---------- */
+.rfl-formcard { width: 100%; max-width: 300px; animation: rfl-fields .55s var(--slide) both; }
+@keyframes rfl-fields { from { opacity: 0; transform: translateX(24px); filter: blur(8px); } to { opacity: 1; transform: translateX(0); filter: blur(0); } }
+.rfl-h2 { font-family: var(--display); font-weight: 700; font-size: 24px; letter-spacing: -0.02em; margin: 0; }
+.rfl-sub { font-size: 12.5px; color: var(--paper-dim); margin: 6px 0 22px; font-weight: 300; }
+.rfl-form { display: flex; flex-direction: column; gap: 14px; }
+.rfl-field label { display: block; font-family: var(--mono); font-size: 9.5px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--paper-dim); margin-bottom: 6px; }
+.rfl-field input {
+  width: 100%; box-sizing: border-box; padding: 12px 14px;
+  background: rgba(9,12,10,0.4); border: 1px solid var(--glass-line); border-radius: 10px;
+  font-family: var(--body); font-size: 14px; color: var(--paper); outline: none;
+  transition: border-color .2s, box-shadow .2s, background .2s;
+}
+.rfl-field input::placeholder { color: rgba(236,234,225,0.32); }
+.rfl-field input:focus { border-color: var(--teal); box-shadow: 0 0 0 3px rgba(22,214,190,.14); background: rgba(9,12,10,0.55); }
+.rfl-label-row { display: flex; justify-content: space-between; align-items: center; }
+.rfl-forgot { font-family: var(--mono); font-size: 9.5px; color: var(--teal); cursor: pointer; }
+.rfl-hint { font-size: 10.5px; color: var(--paper-dim); margin: 7px 0 0; line-height: 1.45; }
+.rfl-error { font-size: 12px; color: #FF8A6B; font-weight: 500; margin: 0; line-height: 1.4; }
+.rfl-submit {
+  margin-top: 4px; width: 100%; padding: 13px;
+  font-family: var(--mono); font-size: 12.5px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--ink); background: var(--teal); border: none; border-radius: 10px; cursor: pointer;
+  transition: transform .16s, box-shadow .16s, opacity .16s;
+}
+.rfl-submit:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 12px 34px rgba(22,214,190,.4); }
+.rfl-submit:disabled { opacity: .6; cursor: default; }
+
+.rfl-foot { position: relative; z-index: 2; font-family: var(--mono); font-size: 10px; letter-spacing: 0.06em; color: rgba(236,234,225,0.3); }
+
+/* ---------- Mobile: stack (aside on top, form below); no horizontal slide ---------- */
+@media (max-width: 720px) {
+  .rfl-auth { max-width: 400px; min-height: 0; }
+  .rfl-formcol, .rfl-aside { position: relative; width: 100%; height: auto; transform: none !important; }
+  .rfl-aside { padding: 30px; order: -1; }
+  .rfl-auth[data-mode] { display: flex; flex-direction: column; }
+  .rfl-aside p { margin-bottom: 18px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rfl *, .rfl *::before, .rfl *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+  .rfl-route { stroke-dashoffset: 0 !important; }
+  .rfl-brand, .rfl-auth, .rfl-formcard { opacity: 1 !important; }
+}
